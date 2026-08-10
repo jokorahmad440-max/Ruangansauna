@@ -1,1 +1,172 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Orang Kedinginan Karena AC</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.5s ease;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .ac-display {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: #eef2f3;
+            color: #333;
+            transition: all 0.5s ease;
+        }
+        .status-box {
+            font-size: 18px;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .character {
+            font-size: 80px;
+            margin: 20px 0;
+            transition: transform 0.3s ease;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+        button:hover {
+            opacity: 0.85;
+        }
+        .btn-panas { background-color: #ff9800; }
+        .btn-normal { background-color: #4caf50; }
+        .btn-dingin { background-color: #00bcd4; }
+        .btn-ekstrem { background-color: #2196f3; }
+        
+        /* Efek Kondisi Tubuh */
+        .shivering {
+            animation: shake 0.15s infinite;
+        }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            20% { transform: translate(-1px, -2px) rotate(-1deg); }
+            40% { transform: translate(-3px, 0px) rotate(1deg); }
+            60% { transform: translate(3px, 2px) rotate(0deg); }
+            80% { transform: translate(1px, -1px) rotate(1deg); }
+            100% { transform: translate(-1px, 2px) rotate(-1deg); }
+        }
+    </style>
+</head>
+<body id="bodyBg">
 
+    <div class="container">
+        <h1>Simulasi Suhu AC & Reaksi Rian</h1>
+        <p>Atur suhu AC untuk melihat perubahan ekspresi dan reaksi Rian!</p>
+
+        <!-- Tampilan Suhu AC -->
+        <div class="ac-display" id="acDisplay">28°C</div>
+
+        <!-- Karakter Visual -->
+        <div class="character" id="characterEmoji">🥵</div>
+
+        <!-- Status / Dialog Reaksi -->
+        <div class="status-box" id="statusText">
+            "Wah, gila! Di luar panas banget. Sisk, tolong nyalain AC di suhu 28°C dulu ya!"
+        </div>
+
+        <!-- Tombol Pengendali AC -->
+        <div class="btn-group">
+            <button class="btn-panas" onclick="ubahSuhu(28, 'panas')">Set 28°C (Gerah)</button>
+            <button class="btn-normal" onclick="ubahSuhu(24, 'normal')">Set 24°C (Sejuk)</button>
+            <button class="btn-dingin" onclick="ubahSuhu(18, 'dingin')">Set 18°C (Dingin)</button>
+            <button class="btn-ekstrem" onclick="ubahSuhu(16, 'ekstrem')">Set 16°C (Membeku)</button>
+        </div>
+    </div>
+
+    <script>
+        function ubahSuhu(suhu, kondisi) {
+            const display = document.getElementById('acDisplay');
+            const emoji = document.getElementById('characterEmoji');
+            const status = document.getElementById('statusText');
+            const body = document.getElementById('bodyBg');
+
+            display.innerText = suhu + "°C";
+            
+            // Hapus animasi menggigil terlebih dahulu
+            emoji.classList.remove('shivering');
+
+            if (kondisi === 'panas') {
+                body.style.backgroundColor = "#f4f7f6";
+                display.style.backgroundColor = "#ffebee";
+                display.style.color = "#c62828";
+                emoji.innerText = "🥵";
+                status.innerText = `"Ah, lumayan agak mendingan. Suhu 28°C pas buat adaptasi awal."`;
+            } 
+            else if (kondisi === 'normal') {
+                body.style.backgroundColor = "#e8f5e9";
+                display.style.backgroundColor = "#e8f5e9";
+                display.style.color = "#2e7d32";
+                emoji.innerText = "😌";
+                status.innerText = `"Nah, mantap! Di 24°C rasanya seger banget, pas di badan."`;
+            } 
+            else if (kondisi === 'dingin') {
+                body.style.backgroundColor = "#e0f7fa";
+                display.style.backgroundColor = "#e0f7fa";
+                display.style.color = "#00838f";
+                emoji.innerText = "🥶";
+                status.innerText = `"Brrr... Kok mendadak dingin banget ya? Jari-jariku mulai kaku!"`;
+                emoji.classList.add('shivering');
+            } 
+            else if (kondisi === 'ekstrem') {
+                body.style.backgroundColor = "#bbdefb";
+                display.style.backgroundColor = "#bbdefb";
+                display.style.color = "#1565c0";
+                emoji.innerText = "🧊";
+                status.innerText = `"Waduh 16°C! Ampun Sis, aku udah jadi es batu hidup! Tolong naikin lagi suhunya! Brrr..."`;
+                emoji.classList.add('shivering');
+            }
+        }
+    </script>
+
+</body>
+</html>
