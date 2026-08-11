@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulasi AC & Suhu Ruangan</title>
+    <title>Simulasi AC Salju & Angin</title>
     <style>
         * {
             box-sizing: border-box;
@@ -76,7 +76,7 @@
         .room {
             position: relative;
             width: 100%;
-            height: 220px;
+            height: 240px;
             background: #f1f2f6;
             border-radius: 10px;
             overflow: hidden;
@@ -85,22 +85,24 @@
             transition: background 0.5s;
         }
 
-        /* AC Unit */
+        /* AC Unit tepat di tengah atas */
         .ac-unit {
             position: absolute;
             top: 10px;
-            right: 20px;
-            width: 120px;
-            height: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 130px;
+            height: 45px;
             background: #2f3640;
-            border-radius: 5px;
+            border-radius: 6px;
             color: white;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 10;
         }
 
         .ac-led {
@@ -115,7 +117,46 @@
             box-shadow: 0 0 8px #2ecc71;
         }
 
-        /* Person */
+        /* Container Efek Salju & Angin */
+        #effects-container {
+            position: absolute;
+            top: 55px;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 5;
+        }
+
+        .snowflake {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: fall linear infinite;
+        }
+
+        .wind-line {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            height: 2px;
+            border-radius: 2px;
+            animation: blow linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0) translateX(0); opacity: 1; }
+            100% { transform: translateY(140px) translateX(15px); opacity: 0; }
+        }
+
+        @keyframes blow {
+            0% { transform: translateX(-20px); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateX(100px); opacity: 0; }
+        }
+
+        /* Person tepat di bawah AC */
         .person-container {
             position: absolute;
             bottom: 10px;
@@ -124,6 +165,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            z-index: 4;
         }
 
         .person-head {
@@ -142,7 +184,7 @@
             position: relative;
         }
 
-        /* Shivering Animation for Cold */
+        /* Shivering Animation */
         @keyframes shiver {
             0% { transform: translateX(0); }
             20% { transform: translateX(-2px) rotate(-1deg); }
@@ -161,6 +203,7 @@
             font-size: 13px;
             font-weight: bold;
             color: #2d3436;
+            white-space: nowrap;
         }
 
         /* Remote Control */
@@ -179,7 +222,6 @@
             font-family: monospace;
             font-size: 18px;
             margin-bottom: 15px;
-            color: #00pion;
             border: 2px inset #57606f;
         }
 
@@ -228,11 +270,14 @@
             <h3 id="greeting" style="margin-top: 0; color: #2d3436;"></h3>
             
             <div class="room" id="room-bg">
-                <!-- Unit AC -->
+                <!-- Unit AC di atas kepala -->
                 <div class="ac-unit">
                     <div id="ac-led" class="ac-led"></div>
                     <span id="ac-display-text">OFF</span>
                 </div>
+
+                <!-- Efek Salju dan Angin -->
+                <div id="effects-container"></div>
 
                 <!-- Orang di bawah AC -->
                 <div class="person-container">
@@ -259,7 +304,8 @@
     <script>
         let userName = "";
         let isPowerOn = false;
-        let currentTemp = 24; // Suhu default AC
+        let currentTemp = 22; 
+        let effectInterval = null;
 
         function handleLogin() {
             const inputName = document.getElementById("username").value.trim();
@@ -270,7 +316,6 @@
             userName = inputName;
             document.getElementById("greeting").innerText = `Halo, ${userName}!`;
             
-            // Transisi layar
             document.getElementById("login-screen").style.display = "none";
             document.getElementById("sim-screen").style.display = "block";
             updateUI();
@@ -284,7 +329,6 @@
         function changeTemp(amount) {
             if (!isPowerOn) return;
             currentTemp += amount;
-            // Batasi suhu AC antara 16°C sampai 30°C
             if (currentTemp < 16) currentTemp = 16;
             if (currentTemp > 30) currentTemp = 30;
             updateUI();
@@ -297,28 +341,45 @@
             const roomBg = document.getElementById("room-bg");
             const personBody = document.getElementById("person-body");
             const personStatus = document.getElementById("person-status");
+            const effectsContainer = document.getElementById("effects-container");
+
+            // Bersihkan efek lama
+            clearInterval(effectInterval);
+            effectsContainer.innerHTML = "";
 
             if (isPowerOn) {
                 led.classList.add("on");
                 acText.innerText = currentTemp + "°C";
                 remoteLcd.innerText = `Power: ON  |  Temp: ${currentTemp}°C`;
 
-                // Logika efek suhu dingin
-                if (currentTemp <= 20) {
-                    roomBg.style.background = "#dff9fb"; // Nuansa es/dingin
+                // Buat efek angin & salju jika AC aktif
+                if (currentTemp <= 24) {
+                    roomBg.style.background = "#dff9fb";
                     personBody.classList.add("shivering");
-                    personStatus.innerText = "Brrr... Dingin Banget!";
+                    personStatus.innerText = "Brrr... Dingin ada salju & angin!";
                     personStatus.style.color = "#0984e3";
+
+                    // Spawn salju & angin secara periodik
+                    effectInterval = setInterval(() => {
+                        createSnowflake();
+                        createWindLine();
+                    }, 300);
+
                 } else if (currentTemp >= 28) {
-                    roomBg.style.background = "#fffa65"; // Nuansa hangat
+                    roomBg.style.background = "#fffa65";
                     personBody.classList.remove("shivering");
                     personStatus.innerText = "Wah, agak gerah nih.";
                     personStatus.style.color = "#e1b12c";
                 } else {
-                    roomBg.style.background = "#f1f2f6"; // Normal
+                    roomBg.style.background = "#f1f2f6";
                     personBody.classList.remove("shivering");
                     personStatus.innerText = "Sejuk & Nyaman :)";
                     personStatus.style.color = "#27ae60";
+
+                    // Angin sepoi-sepoi ringan
+                    effectInterval = setInterval(() => {
+                        createWindLine();
+                    }, 600);
                 }
             } else {
                 led.classList.remove("on");
@@ -329,6 +390,35 @@
                 personStatus.innerText = "AC Mati (Panas)";
                 personStatus.style.color = "#2d3436";
             }
+        }
+
+        function createSnowflake() {
+            const container = document.getElementById("effects-container");
+            const snow = document.createElement("div");
+            snow.classList.add("snowflake");
+            
+            const size = Math.random() * 5 + 3; // Ukuran 3px - 8px
+            snow.style.width = size + "px";
+            snow.style.height = size + "px";
+            snow.style.left = (Math.random() * 120 - 10) + "%"; // Menyebar dari tengah atas
+            snow.style.animationDuration = (Math.random() * 1 + 0.8) + "s";
+            
+            container.appendChild(snow);
+            setTimeout(() => snow.remove(), 2000);
+        }
+
+        function createWindLine() {
+            const container = document.getElementById("effects-container");
+            const wind = document.createElement("div");
+            wind.classList.add("wind-line");
+            
+            wind.style.width = (Math.random() * 30 + 20) + "px";
+            wind.style.top = (Math.random() * 80) + "px";
+            wind.style.left = (Math.random() * 80) + "%";
+            wind.style.animationDuration = (Math.random() * 0.5 + 0.5) + "s";
+            
+            container.appendChild(wind);
+            setTimeout(() => wind.remove(), 1000);
         }
     </script>
 </body>
