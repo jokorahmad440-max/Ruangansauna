@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validasi & Cek Nama Rekening Bank</title>
+    <title>Cek Rekening & Screenshot Hasil</title>
+    <!-- Memuat library html2canvas dari CDN untuk fitur SS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,6 +24,12 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 420px;
+        }
+        /* Area yang akan di-screenshot */
+        #captureArea {
+            background: #ffffff;
+            padding: 10px;
+            border-radius: 6px;
         }
         h2 {
             margin-bottom: 20px;
@@ -54,9 +62,18 @@
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
+            margin-top: 5px;
         }
         button:hover {
             background-color: #0056b3;
+        }
+        .btn-ss {
+            background-color: #28a745;
+            display: none;
+            margin-top: 10px;
+        }
+        .btn-ss:hover {
+            background-color: #218838;
         }
         #result {
             margin-top: 15px;
@@ -90,31 +107,37 @@
 <body>
 
 <div class="container">
-    <h2>Cek Rekening & Nama</h2>
-    <form id="bankForm">
-        <div class="form-group">
-            <label for="bankSelect">Pilih Bank:</label>
-            <select id="bankSelect" required>
-                <option value="">-- Pilih Bank --</option>
-                <option value="bca">BCA</option>
-                <option value="mandiri">Mandiri</option>
-                <option value="bri">BRI</option>
-                <option value="bni">BNI</option>
-                <option value="cimb">CIMB Niaga</option>
-                <option value="bsi">BSI (Bank Syariah Indonesia)</option>
-            </select>
-        </div>
+    <!-- Area yang akan ditangkap gambarnya -->
+    <div id="captureArea">
+        <h2>Cek Rekening & Nama</h2>
+        <form id="bankForm">
+            <div class="form-group">
+                <label for="bankSelect">Pilih Bank:</label>
+                <select id="bankSelect" required>
+                    <option value="">-- Pilih Bank --</option>
+                    <option value="bca">BCA</option>
+                    <option value="mandiri">Mandiri</option>
+                    <option value="bri">BRI</option>
+                    <option value="bni">BNI</option>
+                    <option value="cimb">CIMB Niaga</option>
+                    <option value="bsi">BSI (Bank Syariah Indonesia)</option>
+                </select>
+            </div>
 
-        <div class="form-group">
-            <label for="accountNumber">Nomor Rekening:</label>
-            <input type="text" id="accountNumber" placeholder="Masukkan nomor rekening" required>
-            <div class="hint">Contoh BCA: <b>1234567890</b></div>
-        </div>
+            <div class="form-group">
+                <label for="accountNumber">Nomor Rekening:</label>
+                <input type="text" id="accountNumber" placeholder="Masukkan nomor rekening" required>
+                <div class="hint">Contoh BCA: <b>1234567890</b></div>
+            </div>
 
-        <button type="submit" id="submitBtn">Cek Rekening</button>
-    </form>
+            <button type="submit" id="submitBtn">Cek Rekening</button>
+        </form>
 
-    <div id="result"></div>
+        <div id="result"></div>
+    </div>
+
+    <!-- Tombol untuk Download Screenshot -->
+    <button type="button" id="ssBtn" class="btn-ss" onclick="takeScreenshot()">Download Screenshot (SS)</button>
 </div>
 
 <script>
@@ -127,18 +150,12 @@
       bsi: { name: "BSI (Bank Syariah Indonesia)", minLength: 10, maxLength: 15 }
     };
 
-    // Database tiruan untuk mencocokkan nomor rekening dan nama pemiliknya
-    const mockDatabase = {
-        "1234567890": { bank: "bca", name: "SARIPUDIN" },
-        "1230009876543": { bank: "mandiri", name: "SITI AMINAH" },
-        "034101000123501": { bank: "bri", name: "AHMAD FAUZI" },
-    };
-
     const bankForm = document.getElementById('bankForm');
     const bankSelect = document.getElementById('bankSelect');
     const accountNumberInput = document.getElementById('accountNumber');
     const resultDiv = document.getElementById('result');
     const submitBtn = document.getElementById('submitBtn');
+    const ssBtn = document.getElementById('ssBtn');
 
     bankForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -148,24 +165,24 @@
 
         if (!bankCode) {
             showResult(false, "Silakan pilih bank terlebih dahulu.");
+            ssBtn.style.display = 'none';
             return;
         }
 
-        // Validasi angka
         if (!/^\d+$/.test(accountNumber)) {
             showResult(false, "Nomor rekening hanya boleh berisi angka.");
+            ssBtn.style.display = 'none';
             return;
         }
 
-        // Validasi panjang digit
         const bank = bankRules[bankCode];
         const length = accountNumber.length;
         if (length < bank.minLength || length > bank.maxLength) {
             showResult(false, `Nomor rekening ${bank.name} tidak valid. Panjang digit harus ${bank.minLength} angka.`);
+            ssBtn.style.display = 'none';
             return;
         }
 
-        // Simulasi proses pencarian ke server/API
         submitBtn.textContent = "Mencari...";
         submitBtn.disabled = true;
 
@@ -173,26 +190,21 @@
             submitBtn.textContent = "Cek Rekening";
             submitBtn.disabled = false;
 
-            // Cek apakah nomor rekening ada di database tiruan dan sesuai bank-nya
-            const accountData = mockDatabase[accountNumber];
-
-            if (accountData && accountData.bank === bankCode) {
-                showResult(true, `
-                    <div>Nomor Rekening Valid!</div>
-                    <div class="account-name">Nama Pemilik: ${accountData.name}</div>
-                `);
-            } else if (bankCode === "bca" && accountNumber === "1234567890") {
+            // Jika memasukkan BCA dan nomor 1234567890, munculkan nama SARIPUDIN
+            if (bankCode === "bca" && accountNumber === "1234567890") {
                 showResult(true, `
                     <div>Nomor Rekening Valid!</div>
                     <div class="account-name">Nama Pemilik: SARIPUDIN</div>
                 `);
             } else {
-                // Contoh default jika nomor rekening lain diinput
                 showResult(true, `
                     <div>Nomor Rekening Valid!</div>
                     <div class="account-name">Nama Pemilik: NASABAH ${bank.name}</div>
                 `);
             }
+
+            // Tampilkan tombol SS setelah pengecekan berhasil
+            ssBtn.style.display = 'block';
         }, 800);
     });
 
@@ -200,6 +212,26 @@
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = htmlMessage;
         resultDiv.className = isValid ? 'success' : 'error';
+    }
+
+    // Fungsi untuk mengambil Screenshot menggunakan html2canvas
+    function takeScreenshot() {
+        const captureElement = document.getElementById('captureArea');
+        
+        html2canvas(captureElement).then(canvas => {
+            // Ubah canvas menjadi file gambar (PNG)
+            const imageURL = canvas.toDataURL("image/png");
+            
+            // Buat elemen link virtual untuk mendownload gambar otomatis
+            const downloadLink = document.createElement('a');
+            downloadLink.href = imageURL;
+            downloadLink.download = 'hasil-cek-rekening.png';
+            
+            // Jalankan klik link untuk mengunduh
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        });
     }
 </script>
 
