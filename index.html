@@ -1,78 +1,179 @@
-// Database aturan panjang nomor rekening bank di Indonesia
-const bankRules = {
-  bca: { name: "BCA", minLength: 10, maxLength: 10 },
-  mandiri: { name: "Mandiri", minLength: 13, maxLength: 13 },
-  bri: { name: "BRI", minLength: 15, maxLength: 15 },
-  bni: { name: "BNI", minLength: 10, maxLength: 10 },
-  cimb: { name: "CIMB Niaga", minLength: 10, maxLength: 13 },
-  danamon: { name: "Danamon", minLength: 10, maxLength: 12 },
-  permata: { name: "Permata", minLength: 10, maxLength: 10 },
-  bsi: { name: "BSI (Bank Syariah Indonesia)", minLength: 10, maxLength: 15 },
-  // Tambahkan bank lain sesuai kebutuhan
-};
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validasi Nomor Rekening Bank</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
 
-/**
- * Fungsi untuk memvalidasi nomor rekening bank
- * @param {string} bankCode - Kode bank (contoh: 'bca', 'mandiri', 'bri')
- * @param {string} accountNumber - Nomor rekening yang akan di significativa/validasi
- * @returns {object} - Hasil validasi (status boolean dan pesan)
- */
-function validateBankAccount(bankCode, accountNumber) {
-  // 1. Bersihkan spasi dan pastikan hanya berisi angka
-  const cleanAccountNo = accountNumber.trim();
-  const isNumeric = /^\d+$/.test(cleanAccountNo);
+<div class="container">
+    <h2>Cek Nomor Rekening</h2>
+    <form id="bankForm">
+        <div class="form-group">
+            <label for="bankSelect">Pilih Bank:</label>
+            <select id="bankSelect" required>
+                <option value="">-- Pilih Bank --</option>
+                <option value="bca">BCA</option>
+                <option value="mandiri">Mandiri</option>
+                <option value="bri">BRI</option>
+                <option value="bni">BNI</option>
+                <option value="cimb">CIMB Niaga</option>
+                <option value="danamon">Danamon</option>
+                <option value="permata">Permata</option>
+                <option value="bsi">BSI (Bank Syariah Indonesia)</option>
+            </select>
+        </div>
 
-  if (!isNumeric) {
-    return {
-      isValid: false,
-      message: "Nomor rekening hanya boleh berisi angka."
+        <div class="form-group">
+            <label for="accountNumber">Nomor Rekening:</label>
+            <input type="text" id="accountNumber" placeholder="Masukkan nomor rekening" required>
+        </div>
+
+        <button type="submit">Validasi Rekening</button>
+    </form>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    // Aturan panjang digit rekening bank
+    const bankRules = {
+      bca: { name: "BCA", minLength: 10, maxLength: 10 },
+      mandiri: { name: "Mandiri", minLength: 13, maxLength: 13 },
+      bri: { name: "BRI", minLength: 15, maxLength: 15 },
+      bni: { name: "BNI", minLength: 10, maxLength: 10 },
+      cimb: { name: "CIMB Niaga", minLength: 10, maxLength: 13 },
+      danamon: { name: "Danamon", minLength: 10, maxLength: 12 },
+      permata: { name: "Permata", minLength: 10, maxLength: 10 },
+      bsi: { name: "BSI (Bank Syariah Indonesia)", minLength: 10, maxLength: 15 }
     };
-  }
 
-  // 2. Cek apakah bank terdaftar di dalam rules
-  const bank = bankRules[bankCode.toLowerCase()];
-  if (!bank) {
-    return {
-      isValid: false,
-      message: "Kode bank tidak dikenali atau belum didukung."
-    };
-  }
+    const bankForm = document.getElementById('bankForm');
+    const bankSelect = document.getElementById('bankSelect');
+    const accountNumberInput = document.getElementById('accountNumber');
+    const resultDiv = document.getElementById('result');
 
-  // 3. Validasi panjang digit nomor rekening
-  const length = cleanAccountNo.length;
-  if (length < bank.minLength || length > bank.maxLength) {
-    let digitInfo = bank.minLength === bank.maxLength 
-      ? `harus ${bank.minLength}` 
-      : `antara ${bank.minLength} sampai ${bank.maxLength}`;
-    
-    return {
-      isValid: false,
-      message: `Nomor rekening ${bank.name} tidak valid. Panjang digit ${digitInfo} angka.`
-    };
-  }
+    bankForm.addEventListener('submit', function(e) {
+        e.preventDefault();
 
-  // Jika lolos semua pengecekan
-  return {
-    isValid: true,
-    message: `Nomor rekening ${bank.name} valid.`
-  };
-}
+        const bankCode = bankSelect.value;
+        const accountNumber = accountNumberInput.value.trim();
 
-// ==========================================
-// CONTOH PENGGUNAAN (TESTING):
-// ==========================================
+        // Validasi input kosong
+        if (!bankCode) {
+            showResult(false, "Silakan pilih bank terlebih dahulu.");
+            return;
+        }
 
-// Test BCA (Harus 10 digit)
-console.log(validateBankAccount("bca", "1234567890")); 
-// Output: { isValid: true, message: 'Nomor rekening BCA valid.' }
+        // Cek apakah hanya berisi angka
+        const isNumeric = /^\d+$/.test(accountNumber);
+        if (!isNumeric) {
+            showResult(false, "Nomor rekening hanya boleh berisi angka.");
+            return;
+        }
 
-console.log(validateBankAccount("bca", "12345")); 
-// Output: { isValid: false, message: 'Nomor rekening BCA tidak valid. Panjang digit harus 10 angka.' }
+        // Ambil aturan bank
+        const bank = bankRules[bankCode];
+        const length = accountNumber.length;
 
-// Test Mandiri (Harus 13 digit)
-console.log(validateBankAccount("mandiri", "1230009876543")); 
-// Output: { isValid: true, message: 'Nomor rekening Mandiri valid.' }
+        // Cek panjang digit
+        if (length < bank.minLength || length > bank.maxLength) {
+            let digitInfo = bank.minLength === bank.maxLength 
+                ? `harus ${bank.minLength}` 
+                : `antara ${bank.minLength} sampai ${bank.maxLength}`;
+            
+            showResult(false, `Nomor rekening ${bank.name} tidak valid. Panjang digit ${digitInfo} angka.`);
+            return;
+        }
 
-// Test BRI (Harus 15 digit)
-console.log(validateBankAccount("bri", "034101000123501")); 
-// Output: { isValid: true, message: 'Nomor rekening BRI valid.' }
+        // Jika berhasil
+        showResult(true, `Nomor rekening ${bank.name} valid (${length} digit).`);
+    });
+
+    function showResult(isValid, message) {
+        resultDiv.style.display = 'block';
+        resultDiv.textContent = message;
+        if (isValid) {
+            resultDiv.className = 'success';
+        } else {
+            resultDiv.className = 'error';
+        }
+    }
+</script>
+
+</body>
+</html>
