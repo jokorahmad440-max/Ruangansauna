@@ -3,534 +3,818 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bank Harta Karun - Saldo Nol</title>
+    <title>Dompet Digital Underworld</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        :root {
+            --container-bg: rgba(18, 18, 24, 0.88);
+            --text-color: #f1f1f6;
+            --text-muted: #8a8a9e;
+            --input-bg: rgba(24, 24, 34, 0.9);
+            --input-border: #2a2a3c;
+            --history-border: #222230;
+            --primary: #e63946;
+            --primary-hover: #d62828;
+            --success: #2a9d8f;
+            --danger: #e63946;
         }
+
+        .light-mode {
+            --container-bg: rgba(255, 255, 255, 0.9);
+            --text-color: #1a1a24;
+            --text-muted: #6e6e82;
+            --input-bg: rgba(248, 248, 252, 0.9);
+            --input-border: #dcdce6;
+            --history-border: #eeeef4;
+            --primary: #c9184a;
+            --primary-hover: #a51d3d;
+            --success: #2b9348;
+            --danger: #c9184a;
+        }
+
         body {
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: #fff;
-            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(rgba(8, 8, 10, 0.75), rgba(8, 8, 10, 0.85)), url('bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            min-height: 100vh;
+            transition: background 0.4s ease, color 0.4s ease;
+            position: relative;
         }
-        .container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 25px;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 520px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+        .external-version-menu {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
         }
-        h2 {
-            margin-bottom: 20px;
-            color: #f1c40f;
-            letter-spacing: 1px;
+
+        .btn-external-version {
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(24, 24, 34, 0.85);
+            backdrop-filter: blur(5px);
+            color: var(--text-color);
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             text-align: center;
+            opacity: 0.6;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        .btn-external-version:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-external-version.active {
+            opacity: 1;
+            transform: scale(1.05);
+            background: linear-gradient(135deg, var(--primary), #901025);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 6px 16px rgba(230, 57, 70, 0.4);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background: var(--container-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 5px 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        h2 { 
+            text-align: center; 
+            margin-top: 0; 
+            font-size: 20px; 
+            letter-spacing: 0.5px;
+        }
+
+        .saldo-box {
+            background: linear-gradient(135deg, #181822, #0d0d12);
+            border: 1px solid var(--input-border);
+            color: var(--text-color);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+            letter-spacing: 0.5px;
+        }
+
         .form-group {
-            margin-bottom: 12px;
-            text-align: left;
+            margin-bottom: 16px;
         }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 13px;
-            color: #ddd;
+
+        label { 
+            display: block; 
+            margin-bottom: 6px; 
+            font-size: 13px; 
+            font-weight: 600; 
+            color: var(--text-muted);
         }
+
         input, select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #444;
-            background: rgba(0, 0, 0, 0.3);
-            color: #fff;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 1px solid var(--input-border);
+            background-color: var(--input-bg);
+            color: var(--text-color);
             border-radius: 8px;
             font-size: 14px;
-            outline: none;
-            transition: 0.3s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
+
         input:focus, select:focus {
-            border-color: #f1c40f;
-            box-shadow: 0 0 8px rgba(241, 196, 15, 0.3);
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.25);
         }
-        select option {
-            background: #203a43;
-            color: #fff;
-        }
-        button {
+
+        button.btn-action {
             width: 100%;
-            padding: 11px;
-            background: #f1c40f;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary), #901025);
+            color: white;
             border: none;
-            color: #0f2027;
-            font-weight: bold;
-            font-size: 15px;
             border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
-            margin-top: 5px;
+            transition: opacity 0.2s, transform 0.1s;
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
         }
-        button:hover {
-            background: #d4ac0d;
+
+        button.btn-action:hover { opacity: 0.95; transform: translateY(-1px); }
+        button.btn-action:active { transform: translateY(0); }
+
+        .btn-secondary {
+            background-color: var(--input-border);
+            color: var(--text-color);
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
         }
-        .error-msg {
-            color: #e74c3c;
+
+        .btn-danger {
+            background-color: #8b0000;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
             font-size: 13px;
-            margin-top: 10px;
+            border-bottom: 1px solid var(--history-border);
+            padding-bottom: 12px;
+        }
+
+        .history-list {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            border-top: 1px solid var(--history-border);
+            padding-top: 12px;
+        }
+
+        .history-item {
+            font-size: 14px;
+            padding: 10px 4px;
+            border-bottom: 1px solid var(--history-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hidden { display: none !important; }
+        
+        .chart-box {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
             text-align: center;
         }
-        .dashboard {
-            display: none;
-        }
-        .card-info {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 4px solid #f1c40f;
-        }
-        .card-info p {
-            margin-bottom: 4px;
-            font-size: 13px;
-        }
-        .balance {
-            font-size: 20px;
-            color: #2ecc71;
-            font-weight: bold;
-            margin-top: 4px;
-        }
-        .action-grid {
+
+        .summary-stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-top: 10px;
+            margin-bottom: 14px;
         }
-        .btn-green {
-            background: #2ecc71 !important;
-            color: #fff !important;
-        }
-        .btn-green:hover {
-            background: #27ae60 !important;
-        }
-        .btn-red {
-            background: #e74c3c !important;
-            color: #fff !important;
-        }
-        .btn-red:hover {
-            background: #c0392b !important;
-        }
-        
-        /* Bagian Filter & Mutasi */
-        .mutation-section {
-            margin-top: 15px;
-            background: rgba(0, 0, 0, 0.25);
-            padding: 12px;
+
+        .stat-card {
+            background: rgba(18, 18, 24, 0.5);
+            border: 1px solid var(--input-border);
+            padding: 10px;
             border-radius: 8px;
-        }
-        .mutation-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .mutation-header span {
-            font-size: 13px;
-            color: #f1c40f;
-            font-weight: bold;
-        }
-        .filter-select {
-            width: auto;
-            padding: 5px 10px;
-            font-size: 12px;
-            background: rgba(0, 0, 0, 0.5);
-        }
-        .history-box {
-            max-height: 140px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-        .history-item {
-            font-size: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .history-item:last-child {
-            border-bottom: none;
-        }
-        .masuk { color: #2ecc71; }
-        .keluar { color: #e74c3c; }
-
-        .btn-delete {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            cursor: pointer;
-            width: auto;
-            margin-top: 0;
-            transition: 0.2s;
-        }
-        .btn-delete:hover {
-            background: #c0392b;
+            text-align: left;
         }
 
-        .backup-section {
-            margin-top: 12px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        .btn-blue {
-            background: #3498db !important;
-            color: #fff !important;
-            font-size: 13px !important;
-            padding: 8px !important;
-        }
-        .btn-blue:hover {
-            background: #2980b9 !important;
-        }
-        .btn-purple {
-            background: #9b59b6 !important;
-            color: #fff !important;
-            font-size: 13px !important;
-            padding: 8px !important;
-        }
-        .btn-purple:hover {
-            background: #8e44ad !important;
-        }
-        
-        .blocked {
-            display: none;
+        .stat-card.full-width {
+            grid-column: span 2;
             text-align: center;
-            color: #e74c3c;
+            background: linear-gradient(135deg, rgba(230, 57, 70, 0.15), rgba(18, 18, 24, 0.6));
+            border-color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .stat-value {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .stat-value.in { color: var(--success); }
+        .stat-value.out { color: var(--danger); }
+        .stat-value.sisa { color: var(--text-color); font-size: 16px; }
+
+        svg.flame-chart {
+            width: 100%;
+            height: 120px;
+            overflow: visible;
+        }
+
+        .monthly-summary-box {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 15px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .monthly-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--history-border);
+        }
+
+        .monthly-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 2px solid var(--primary);
+            color: var(--primary);
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- FORM LOGIN -->
-        <div id="loginSection">
-            <h2>BANK HARTA KARUN</h2>
-            <div class="form-group">
-                <label>Masukkan Password</label>
-                <input type="password" id="passwordInput" placeholder="Contoh: 12345">
-            </div>
-            <button onclick="handleLogin()">MASUK</button>
-            <div id="errorMsg" class="error-msg"></div>
-            
-            <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
-                <label style="font-size: 11px; color: #aaa; text-align: center; margin-bottom: 4px;">Punya file cadangan data?</label>
-                <input type="file" id="restoreFileLogin" accept=".json" onchange="restoreData(event)" style="font-size: 11px; padding: 5px;">
-            </div>
-        </div>
-
-        <!-- DASHBOARD AKUN & MUTASI -->
-        <div id="dashboardSection" class="dashboard">
-            <h2>MUTASI KEUANGAN</h2>
-            <div class="card-info">
-                <p><strong>Nama Pemilik:</strong> JOKO RAHMADSYAH</p>
-                <p><strong>Nomor Rekening:</strong> 888202601</p>
-                <p>Total Saldo:</p>
-                <div class="balance" id="saldoDisplay">Rp 0</div>
-            </div>
-
-            <div class="form-group">
-                <label>Nominal (Rp)</label>
-                <input type="number" id="nominalInput" placeholder="Masukkan jumlah uang">
-            </div>
-
-            <div class="form-group">
-                <label>Keterangan / Kategori</label>
-                <select id="kategoriInput">
-                    <option value="Setor Tunai (Pemasukan)">Setor Tunai (Pemasukan)</option>
-                    <option value="Gaji / Pendapatan">Gaji / Pendapatan (Pemasukan)</option>
-                    <option value="Belanja / Kebutuhan">Belanja / Kebutuhan (Pengeluaran)</option>
-                    <option value="Transfer Keluar">Transfer Keluar (Pengeluaran)</option>
-                    <option value="Bayar Tagihan">Bayar Tagihan (Pengeluaran)</option>
-                    <option value="Biaya Admin">Biaya Admin (Pengeluaran)</option>
-                </select>
-            </div>
-
-            <div class="action-grid">
-                <button onclick="prosesTransaksi('masuk')" class="btn-green">Setor (Masuk)</button>
-                <button onclick="prosesTransaksi('keluar')" class="btn-red">Keluarkan (Keluar)</button>
-            </div>
-
-            <!-- KOTAK MUTASI & FILTER -->
-            <div class="mutation-section">
-                <div class="mutation-header">
-                    <span>RIWAYAT MUTASI</span>
-                    <select id="filterMutasi" class="filter-select" onchange="renderRiwayat()">
-                        <option value="semua">Semua Transaksi</option>
-                        <option value="masuk">Pemasukan Saja</option>
-                        <option value="keluar">Pengeluaran Saja</option>
-                    </select>
-                </div>
-                <div class="history-box" id="historyList">
-                    <!-- Data mutasi akan tampil di sini -->
-                </div>
-            </div>
-
-            <!-- TOMBOL BACKUP & RESTORE -->
-            <div class="backup-section">
-                <button onclick="backupData()" class="btn-blue">Backup Data</button>
-                <label for="restoreFile" class="btn-purple" style="display:inline-block; text-align:center; border-radius:8px; cursor:pointer; font-weight:bold; padding:8px; font-size:13px; line-height:normal; margin-top:5px;">Restore Data</label>
-                <input type="file" id="restoreFile" accept=".json" onchange="restoreData(event)" style="display:none;">
-            </div>
-            
-            <button onclick="handleLogout()" style="background: #7f8c8d; color: #fff; margin-top: 10px;">Kunci Sesi</button>
-        </div>
-
-        <!-- HALAMAN TERBLOKIR -->
-        <div id="blockedSection" class="blocked">
-            <h2>AKUN TERBLOKIR</h2>
-            <p>Anda telah salah memasukkan password sebanyak 3 kali. Demi keamanan, akses akun dikunci permanen.</p>
-        </div>
+    <div class="external-version-menu" id="externalMenu">
+        <button id="btnVer1" class="btn-external-version active" onclick="pilihVersi(1)">Versi 1</button>
+        <button id="btnVer2" class="btn-external-version" onclick="pilihVersi(2)">Versi 2</button>
     </div>
 
-    <script>
-        const CORRECT_PASSWORD = "12345";
-        let attempts = parseInt(localStorage.getItem('bank_attempts')) || 0;
-        let isBlocked = localStorage.getItem('bank_blocked') === 'true';
-        let isLoggedIn = localStorage.getItem('bank_logged_in') === 'true';
-        // Saldo awal diatur menjadi 0 secara default
-        let saldo = parseFloat(localStorage.getItem('bank_saldo')) || 0;
-        let riwayat = JSON.parse(localStorage.getItem('bank_riwayat')) || [];
+<div class="container">
+    <div id="loginSection">
+        <h2>Login Dompet</h2>
+        <div class="form-group" style="margin-top: 20px;">
+            <label>Username</label>
+            <input type="text" id="inputUser" placeholder="Masukkan username">
+        </div>
+        <div class="form-group">
+            <label>PIN</label>
+            <input type="password" id="inputPin" maxlength="4" placeholder="Masukkan PIN">
+        </div>
+        <button class="btn-action" id="btnLogin" onclick="login()" style="margin-top: 10px;">Masuk</button>
+        <p id="loginErrorMsg" style="color: var(--danger); font-size: 12px; text-align: center; margin-top: 10px;"></p>
+    </div>
 
-        const loginSection = document.getElementById('loginSection');
-        const dashboardSection = document.getElementById('dashboardSection');
-        const blockedSection = document.getElementById('blockedSection');
-        const errorMsg = document.getElementById('errorMsg');
-        const saldoDisplay = document.getElementById('saldoDisplay');
-        const historyList = document.getElementById('historyList');
+    <div id="appSection" class="hidden">
+        <div class="top-bar">
+            <span>👤 <b>Apk versi 3.0.00</b></span>
+            <div style="display: flex; gap: 6px; align-items: center;">
+                <button onclick="toggleTheme()" class="btn-secondary">🌙/☀️ Tema</button>
+                <button onclick="logout()" class="btn-danger">Keluar</button>
+            </div>
+        </div>
 
-        function initApp() {
-            saldoDisplay.innerText = formatRupiah(saldo);
-            renderRiwayat();
+        <div style="display: flex; gap: 6px; margin-bottom: 15px;">
+            <button onclick="backupData()" class="btn-secondary" style="flex: 1; background: #2a9d8f; color: white;">💾 Export Data</button>
+            <button onclick="document.getElementById('importFile').click()" class="btn-secondary" style="flex: 1; background: #457b9d; color: white;">📂 Import Data</button>
+            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="restoreData(event)">
+        </div>
 
-            if (isBlocked) {
-                loginSection.style.display = 'none';
-                dashboardSection.style.display = 'none';
-                blockedSection.style.display = 'block';
-            } else if (isLoggedIn) {
-                loginSection.style.display = 'none';
-                dashboardSection.style.display = 'block';
-                blockedSection.style.display = 'none';
-            } else {
-                loginSection.style.display = 'block';
-                dashboardSection.style.display = 'none';
-                blockedSection.style.display = 'none';
+        <h2>KEUANGAN NEGARA !</h2>
+        
+        <div class="saldo-box" id="displaySaldo">Rp 0</div>
+
+        <div id="versi1Content">
+            <div class="chart-box">
+                <p style="margin: 0 0 12px 0; font-size: 13px; font-weight: 600; color: var(--text-muted);">📊 Ringkasan Total Keseluruhan</p>
+                
+                <div class="summary-stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-label">UANG MASUK</span>
+                        <span class="stat-value in" id="summaryTotalIn">Rp 0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">UANG KELUAR</span>
+                        <span class="stat-value out" id="summaryTotalOut">Rp 0</span>
+                    </div>
+                    <div class="stat-card full-width">
+                        <span class="stat-label">SISA SALDO</span>
+                        <span class="stat-value sisa" id="summarySisaSaldo">Rp 0</span>
+                    </div>
+                </div>
+
+                <p style="margin: 16px 0 8px 0; font-size: 13px; font-weight: 600; color: var(--text-muted);">📈 Grafik Fluktuasi Keuangan</p>
+                <svg class="flame-chart" id="fluctuationSvg" viewBox="0 0 300 100">
+                </svg>
+                <p id="flunctuationText" style="margin: 10px 0 0 0; font-size: 12px; color: var(--text-muted);">Belum ada fluktuasi data</p>
+            </div>
+
+            <div class="monthly-summary-box">
+                <p style="margin: 0 0 10px 0; font-size: 13px; font-weight: 600; color: var(--text-muted);">📅 Rekap Pengeluaran (Jan 2026 - Des 2028)</p>
+                <div id="monthlySummaryList">
+                    <div style="color: var(--text-muted); text-align: center; font-size: 13px;">Belum ada pengeluaran</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="versi2Content" class="hidden">
+            <div class="form-group">
+                <label>Bulan Transaksi</label>
+                <select id="inputBulan">
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Keterangan</label>
+                <input type="text" id="inputKeterangan" placeholder="Uang masuk dan Uang keluar">
+            </div>
+            <div class="form-group">
+                <label>Nominal (Rp)</label>
+                <input type="number" id="inputNominal" placeholder="Contoh: 50000">
+            </div>
+            <div class="form-group">
+                <label>Tipe Transaksi</label>
+                <select id="inputTipe">
+                    <option value="in">Pemasukan (+)</option>
+                    <option value="out">Pengeluaran (-)</option>
+                </select>
+            </div>
+            <button class="btn-action" onclick="tambahTransaksi()">Simpan Transaksi</button>
+        </div>
+
+        <div class="history-list hidden" id="historyListContainer">
+            <div id="historyList">
+                <div style="color: var(--text-muted); text-align: center; font-size: 13px;">Belum ada transaksi</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    const STORAGE_KEY = 'dompet_vzqaajoko_permanent_data_v11';
+    const THEME_KEY = 'dompet_theme_mode_v6';
+    const LOGIN_KEY = 'dompet_is_logged_in_v6';
+
+    let appData = {
+        saldo: 0,
+        riwayat: []
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem(THEME_KEY);
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-mode');
+        }
+
+        const isLoggedIn = localStorage.getItem(LOGIN_KEY);
+        if (isLoggedIn === 'true') {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('appSection').classList.remove('hidden');
+        }
+
+        const monthSelect = document.getElementById('inputBulan');
+        if(monthSelect) {
+            const namaBulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            
+            for(let y = 2026; y <= 2028; y++) {
+                for(let m = 1; m <= 12; m++) {
+                    let mStr = m < 10 ? '0' + m : '' + m;
+                    let val = `${y}-${mStr}`;
+                    let text = `${namaBulanIndo[m - 1]} ${y}`;
+                    
+                    let opt = document.createElement('option');
+                    opt.value = val;
+                    opt.text = text;
+                    monthSelect.appendChild(opt);
+                }
+            }
+
+            const now = new Date();
+            const currY = now.getFullYear();
+            const currM = String(now.getMonth() + 1).padStart(2, '0');
+            if(currY >= 2026 && currY <= 2028) {
+                monthSelect.value = `${currY}-${currM}`;
             }
         }
 
-        function handleLogin() {
-            const pass = document.getElementById('passwordInput').value;
+        muatDataDariStorage();
+        updateUI();
+    });
 
-            if (pass === CORRECT_PASSWORD) {
-                isLoggedIn = true;
-                attempts = 0;
-                localStorage.setItem('bank_logged_in', 'true');
-                localStorage.setItem('bank_attempts', attempts);
-                initApp();
-            } else {
-                attempts++;
-                localStorage.setItem('bank_attempts', attempts);
-                
-                if (attempts >= 3) {
-                    isBlocked = true;
-                    localStorage.setItem('bank_blocked', 'true');
-                    initApp();
+    function muatDataDariStorage() {
+        try {
+            const dataLocal = localStorage.getItem(STORAGE_KEY);
+            if (dataLocal) {
+                const parsed = JSON.parse(dataLocal);
+                appData = {
+                    saldo: typeof parsed.saldo === 'number' ? parsed.saldo : 0,
+                    riwayat: Array.isArray(parsed.riwayat) ? parsed.riwayat : []
+                };
+            }
+        } catch (err) {
+            appData = { saldo: 0, riwayat: [] };
+        }
+    }
+
+    function login() {
+        const user = document.getElementById('inputUser').value.trim();
+        const pin = document.getElementById('inputPin').value.trim();
+
+        if (user === 'vzqaajoko' && pin === '1') {
+            localStorage.setItem(LOGIN_KEY, 'true');
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('appSection').classList.remove('hidden');
+            muatDataDariStorage();
+            updateUI();
+            document.getElementById('loginErrorMsg').innerText = '';
+        } else {
+            document.getElementById('loginErrorMsg').innerText = 'Username atau PIN salah! Silakan coba lagi.';
+        }
+    }
+
+    function logout() {
+        if (!confirm('Apakah anda yakin ingin keluar')) {
+            return;
+        }
+        localStorage.removeItem(LOGIN_KEY);
+        document.getElementById('appSection').classList.add('hidden');
+        document.getElementById('loginSection').classList.remove('hidden');
+        document.getElementById('inputUser').value = '';
+        document.getElementById('inputPin').value = '';
+    }
+
+    function backupData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "backup_dompet_underworld.json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    }
+
+    function restoreData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const parsedData = JSON.parse(e.target.result);
+                if (typeof parsedData.saldo === 'number' && Array.isArray(parsedData.riwayat)) {
+                    appData = parsedData;
+                    simpanData();
+                    alert('Data berhasil dipulihkan!');
                 } else {
-                    errorMsg.innerText = `Password salah! Sisa kesempatan: ${3 - attempts}`;
+                    alert('Format file cadangan tidak valid!');
                 }
+            } catch (err) {
+                alert('Gagal membaca file JSON!');
             }
+        };
+        reader.readAsText(file);
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const isLight = document.body.classList.contains('light-mode');
+        localStorage.setItem(THEME_KEY, isLight ? 'light' : 'dark');
+    }
+
+    function pilihVersi(v) {
+        const btn1 = document.getElementById('btnVer1');
+        const btn2 = document.getElementById('btnVer2');
+        const ver1Content = document.getElementById('versi1Content');
+        const ver2Content = document.getElementById('versi2Content');
+        const historyContainer = document.getElementById('historyListContainer');
+
+        if (v === 1) {
+            btn1.classList.add('active');
+            btn2.classList.remove('active');
+            ver1Content.classList.remove('hidden');
+            ver2Content.classList.add('hidden');
+            historyContainer.classList.add('hidden');
+        } else {
+            btn2.classList.add('active');
+            btn1.classList.remove('active');
+            ver2Content.classList.remove('hidden');
+            ver1Content.classList.add('hidden');
+            historyContainer.classList.remove('hidden');
+        }
+    }
+
+    function tambahTransaksi() {
+        const bln = document.getElementById('inputBulan').value;
+        const ket = document.getElementById('inputKeterangan').value.trim() || 'Transaksi';
+        const nom = parseFloat(document.getElementById('inputNominal').value);
+        const tipe = document.getElementById('inputTipe').value;
+
+        if (!bln) {
+            alert('Pilih bulan transaksi terlebih dahulu!');
+            return;
         }
 
-        function prosesTransaksi(tipe) {
-            const nominal = parseFloat(document.getElementById('nominalInput').value);
-            const kategori = document.getElementById('kategoriInput').value;
+        if (isNaN(nom) || nom <= 0) {
+            alert('Masukkan nominal yang valid!');
+            return;
+        }
 
-            if (isNaN(nominal) || nominal <= 0) {
-                alert("Masukkan nominal uang yang valid!");
-                return;
-            }
+        muatDataDariStorage();
 
-            if (tipe === 'keluar') {
-                if (nominal > saldo) {
-                    alert("Saldo tidak mencukupi untuk pengeluaran ini!");
-                    return;
-                }
-                saldo -= nominal;
+        if (tipe === 'out' && nom > appData.saldo) {
+            alert('Saldo tidak mencukupi!');
+            return;
+        }
+
+        if (tipe === 'in') {
+            appData.saldo += nom;
+        } else {
+            appData.saldo -= nom;
+        }
+
+        appData.riwayat.unshift({
+            id: Date.now(),
+            bulan: bln,
+            keterangan: ket,
+            nominal: nom,
+            tipe: tipe
+        });
+
+        simpanData();
+        
+        document.getElementById('inputKeterangan').value = '';
+        document.getElementById('inputNominal').value = '';
+        
+        pilihVersi(1);
+    }
+
+    function hapusTransaksi(id) {
+        if (!confirm('Apakah anda yakin ingin menghapus')) {
+            return;
+        }
+        muatDataDariStorage();
+        const index = appData.riwayat.findIndex(item => item.id === id);
+        if (index !== -1) {
+            const item = appData.riwayat[index];
+            if (item.tipe === 'in') {
+                appData.saldo -= item.nominal;
             } else {
-                saldo += nominal;
+                appData.saldo += item.nominal;
             }
+            appData.riwayat.splice(index, 1);
+            simpanData();
+        }
+    }
 
-            const waktu = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    function simpanData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        updateUI();
+    }
 
-            const dataTransaksi = {
-                id: Date.now(),
-                kategori: kategori,
-                nominal: nominal,
-                tipe: tipe,
-                waktu: waktu
-            };
+    function formatNamaBulan(yymm) {
+        if (!yymm) return '-';
+        let [y, m] = yymm.split('-');
+        let dateObj = new Date(y, m - 1, 1);
+        return dateObj.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    }
 
-            riwayat.unshift(dataTransaksi);
-            if (riwayat.length > 50) riwayat.pop();
+    function updateUI() {
+        muatDataDariStorage();
 
-            localStorage.setItem('bank_saldo', saldo);
-            localStorage.setItem('bank_riwayat', JSON.stringify(riwayat));
+        const formattedSaldo = new Intl.NumberFormat('id-ID', {
+            style: 'currency', currency: 'IDR', maximumFractionDigits: 0
+        }).format(appData.saldo);
 
-            document.getElementById('nominalInput').value = '';
-            initApp();
+        document.getElementById('displaySaldo').innerText = formattedSaldo;
+        document.getElementById('summarySisaSaldo').innerText = formattedSaldo;
+
+        let totalIn = 0;
+        let totalOut = 0;
+        appData.riwayat.forEach(item => {
+            if (item.tipe === 'in') totalIn += item.nominal;
+            else totalOut += item.nominal;
+        });
+
+        document.getElementById('summaryTotalIn').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(totalIn);
+        document.getElementById('summaryTotalOut').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(totalOut);
+
+        renderFluktuasiChart();
+        renderMonthlySummary();
+
+        const listContainer = document.getElementById('historyList');
+        listContainer.innerHTML = '';
+
+        if (!appData.riwayat || appData.riwayat.length === 0) {
+            listContainer.innerHTML = '<div style="color: var(--text-muted); text-align: center; font-size: 13px;">Belum ada transaksi</div>';
+            return;
         }
 
-        function hapusMutasi(id) {
-            const index = riwayat.findIndex(item => item.id === id);
-            if (index !== -1) {
-                const item = riwayat[index];
-                
-                if (item.tipe === 'masuk') {
-                    if (saldo < item.nominal) {
-                        alert("Tidak dapat menghapus mutasi ini karena saldo saat ini tidak mencukupi untuk membatalkan pemasukan!");
-                        return;
-                    }
-                    saldo -= item.nominal;
-                } else {
-                    saldo += item.nominal;
-                }
+        appData.riwayat.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            const tanda = item.tipe === 'in' ? '+' : '-';
+            const warna = item.tipe === 'in' ? 'color: var(--success);' : 'color: var(--danger);';
+            const nomFmt = new Intl.NumberFormat('id-ID').format(item.nominal);
+            
+            let rawBulan = item.bulan || (item.tanggal ? item.tanggal.substring(0, 7) : '');
+            let bulanFormatted = formatNamaBulan(rawBulan);
 
-                riwayat.splice(index, 1);
-                
-                localStorage.setItem('bank_saldo', saldo);
-                localStorage.setItem('bank_riwayat', JSON.stringify(riwayat));
-                
-                initApp();
-                alert("Mutasi berhasil dihapus dan saldo telah disesuaikan.");
+            div.innerHTML = `
+                <span><b>${item.keterangan}</b> <small style="color: var(--text-muted);">(${bulanFormatted})</small><br><small style="${warna}; font-weight: 600;">${tanda} Rp ${nomFmt}</small></span>
+                <button class="btn-danger" onclick="hapusTransaksi(${item.id})">Hapus</button>
+            `;
+            listContainer.appendChild(div);
+        });
+    }
+
+    function renderMonthlySummary() {
+        const summaryContainer = document.getElementById('monthlySummaryList');
+        summaryContainer.innerHTML = '';
+
+        let allMonths = [];
+        for (let year = 2026; year <= 2028; year++) {
+            for (let month = 1; month <= 12; month++) {
+                let mStr = month < 10 ? '0' + month : '' + month;
+                allMonths.push(`${year}-${mStr}`);
             }
         }
 
-        function backupData() {
-            const dataBank = {
-                saldo: saldo,
-                riwayat: riwayat,
-                attempts: attempts,
-                isBlocked: isBlocked
-            };
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataBank));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "backup_bank_harta_karun.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
+        const pengeluaranList = appData.riwayat.filter(item => item.tipe === 'out');
 
-        function restoreData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+        let monthlyMap = {};
+        allMonths.forEach(m => monthlyMap[m] = 0);
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const parsedData = JSON.parse(e.target.result);
-                    if (parsedData.saldo !== undefined && parsedData.riwayat !== undefined) {
-                        saldo = parsedData.saldo;
-                        riwayat = parsedData.riwayat;
-                        attempts = parsedData.attempts || 0;
-                        isBlocked = parsedData.isBlocked || false;
-
-                        localStorage.setItem('bank_saldo', saldo);
-                        localStorage.setItem('bank_riwayat', JSON.stringify(riwayat));
-                        localStorage.setItem('bank_attempts', attempts);
-                        localStorage.setItem('bank_blocked', isBlocked);
-
-                        initApp();
-                        alert("Data berhasil dipulihkan (Restore)!");
-                    } else {
-                        alert("Format file cadangan tidak valid!");
-                    }
-                } catch (err) {
-                    alert("Gagal membaca file backup.");
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function renderRiwayat() {
-            const filterValue = document.getElementById('filterMutasi').value;
-            historyList.innerHTML = '';
-
-            let filteredRiwayat = riwayat.filter(item => {
-                if (filterValue === 'masuk') return item.tipe === 'masuk';
-                if (filterValue === 'keluar') return item.tipe === 'keluar';
-                return true;
-            });
-
-            if (filteredRiwayat.length === 0) {
-                historyList.innerHTML = '<div style="font-size: 12px; color: #aaa; text-align: center; padding: 10px;">Tidak ada mutasi untuk kategori ini.</div>';
-                return;
-            }
-
-            filteredRiwayat.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                const tanda = item.tipe === 'masuk' ? '+' : '-';
-                const warnaClass = item.tipe === 'masuk' ? 'masuk' : 'keluar';
-
-                div.innerHTML = `
-                    <div style="flex: 1; padding-right: 8px;">
-                        <strong>${item.kategori}</strong><br>
-                        <span style="font-size: 10px; color: #aaa;">${item.waktu}</span>
-                    </div>
-                    <div class="${warnaClass}" style="font-weight: bold; margin-right: 10px; white-space: nowrap;">
-                        ${tanda} ${formatRupiah(item.nominal)}
-                    </div>
-                    <div>
-                        <button class="btn-delete" onclick="hapusMutasi(${item.id})">Hapus</button>
-                    </div>
-                `;
-                historyList.appendChild(div);
-            });
-        }
-
-        function handleLogout() {
-            isLoggedIn = false;
-            localStorage.setItem('bank_logged_in', 'false');
-            document.getElementById('passwordInput').value = '';
-            initApp();
-        }
-
-        function formatRupiah(angka) {
-            return 'Rp ' + angka.toLocaleString('id-ID');
-        }
-
-        document.addEventListener('keydown', function (e) {
-            if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || (e.ctrlKey && e.keyCode === 85)) {
-                e.preventDefault();
-                return false;
+        let totalSemuaBulan = 0;
+        pengeluaranList.forEach(item => {
+            let bulanKey = item.bulan || (item.tanggal ? item.tanggal.substring(0, 7) : '');
+            if (bulanKey && monthlyMap[bulanKey] !== undefined) {
+                monthlyMap[bulanKey] += item.nominal;
+                totalSemuaBulan += item.nominal;
+            } else if (bulanKey) {
+                monthlyMap[bulanKey] = item.nominal;
+                totalSemuaBulan += item.nominal;
             }
         });
 
-        document.addEventListener('contextmenu', function (e) {
-            e.preventDefault();
+        let hasData = false;
+        allMonths.forEach(bulanKey => {
+            if (monthlyMap[bulanKey] > 0) {
+                hasData = true;
+                let namaBulan = formatNamaBulan(bulanKey);
+                let nominalBulanFmt = new Intl.NumberFormat('id-ID').format(monthlyMap[bulanKey]);
+
+                let rowDiv = document.createElement('div');
+                rowDiv.className = 'monthly-row';
+                rowDiv.innerHTML = `<span>${namaBulan}</span> <b>Rp ${nominalBulanFmt}</b>`;
+                summaryContainer.appendChild(rowDiv);
+            }
         });
 
-        window.onload = initApp;
-    </script>
+        if (!hasData) {
+            summaryContainer.innerHTML = '<div style="color: var(--text-muted); text-align: center; font-size: 13px;">Belum ada pengeluaran (Jan 2026 - Des 2028)</div>';
+            return;
+        }
+
+        let totalSemuaFmt = new Intl.NumberFormat('id-ID').format(totalSemuaBulan);
+        let totalDiv = document.createElement('div');
+        totalDiv.className = 'monthly-total';
+        totalDiv.innerHTML = `<span>Total Semua Bulan</span> <span>Rp ${totalSemuaFmt}</span>`;
+        summaryContainer.appendChild(totalDiv);
+    }
+
+    function renderFluktuasiChart() {
+        const svg = document.getElementById('fluctuationSvg');
+        const textInfo = document.getElementById('flunctuationText');
+        svg.innerHTML = '';
+
+        if (!appData.riwayat || appData.riwayat.length === 0) {
+            textInfo.innerText = "Belum ada fluktuasi data";
+            return;
+        }
+
+        let currentS = appData.saldo;
+        for(let i = appData.riwayat.length - 1; i >= 0; i--) {
+            let tr = appData.riwayat[i];
+            if(tr.tipe === 'in') currentS -= tr.nominal;
+            else currentS += tr.nominal;
+        }
+        
+        let traceSaldo = currentS;
+        let valList = [traceSaldo];
+        appData.riwayat.slice().reverse().forEach(tr => {
+            if(tr.tipe === 'in') traceSaldo += tr.nominal;
+            else traceSaldo -= tr.nominal;
+            valList.push(traceSaldo);
+        });
+
+        let minV = Math.min(...valList);
+        let maxV = Math.max(...valList);
+        let rangeV = maxV - minV || 1;
+
+        let width = 300;
+        let height = 80;
+        let stepX = width / Math.max(valList.length - 1, 1);
+
+        let ptsString = "";
+        let points = [];
+        valList.forEach((val, idx) => {
+            let cx = idx * stepX;
+            let cy = height - ((val - minV) / rangeV) * height + 10;
+            points.push({x: cx, y: cy});
+            ptsString += `${cx},${cy} `;
+        });
+
+        let areaPoints = `0,100 ${ptsString} ${width},100`;
+        let polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polygon.setAttribute('points', areaPoints);
+        polygon.setAttribute('fill', 'rgba(230, 57, 70, 0.15)');
+        svg.appendChild(polygon);
+
+        let polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        polyline.setAttribute('points', ptsString);
+        polyline.setAttribute('fill', 'none');
+        polyline.setAttribute('stroke', 'var(--primary)');
+        polyline.setAttribute('stroke-width', '3');
+        polyline.setAttribute('stroke-linecap', 'round');
+        polyline.setAttribute('stroke-linejoin', 'round');
+        svg.appendChild(polyline);
+
+        points.forEach(pt => {
+            let circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', pt.x);
+            circle.setAttribute('cy', pt.y);
+            circle.setAttribute('r', '5');
+            circle.setAttribute('fill', 'var(--primary)');
+            circle.setAttribute('stroke', '#ffffff');
+            circle.setAttribute('stroke-width', '2');
+            svg.appendChild(circle);
+        });
+
+        textInfo.innerText = `Fluktuasi Aktif (${valList.length} Titik Perubahan)`;
+    }
+</script>
+
 </body>
 </html>
