@@ -3,423 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulasi AC Salju & Angin</title>
+    <title>Bank Harta Karun</title>
     <style>
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
         body {
-            background: linear-gradient(135deg, #74b9ff, #dfe6e9);
-            margin: 0;
-            padding: 20px;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
         }
-
-        .card {
-            background: white;
-            padding: 30px;
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
             border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 450px;
+            max-width: 400px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             text-align: center;
         }
-
-        /* Login Screen */
-        #login-screen h2 {
-            color: #2d3436;
-            margin-bottom: 20px;
+        h2 {
+            margin-bottom: 25px;
+            color: #f1c40f;
+            letter-spacing: 1px;
         }
-
-        input[type="text"] {
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #ddd;
+        }
+        input {
             width: 100%;
             padding: 12px;
-            margin-bottom: 15px;
-            border: 2px solid #dfe6e9;
+            border: 1px solid #444;
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
             border-radius: 8px;
             font-size: 16px;
             outline: none;
             transition: 0.3s;
         }
-
-        input[type="text"]:focus {
-            border-color: #0984e3;
+        input:focus {
+            border-color: #f1c40f;
+            box-shadow: 0 0 8px rgba(241, 196, 15, 0.3);
         }
-
         button {
-            background-color: #0984e3;
-            color: white;
+            width: 100%;
+            padding: 12px;
+            background: #f1c40f;
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
+            color: #0f2027;
+            font-weight: bold;
             font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background-color: #74b9ff;
-        }
-
-        /* Simulation Screen */
-        #sim-screen {
-            display: none;
-        }
-
-        .room {
-            position: relative;
-            width: 100%;
-            height: 240px;
-            background: #f1f2f6;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 2px solid #ced6e0;
-            margin-bottom: 20px;
-            transition: background 0.5s;
-        }
-
-        /* AC Unit tepat di tengah atas */
-        .ac-unit {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 130px;
-            height: 45px;
-            background: #2f3640;
-            border-radius: 6px;
-            color: white;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            font-size: 13px;
-            font-weight: bold;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            z-index: 10;
-        }
-
-        .ac-led {
-            width: 8px;
-            height: 8px;
-            background-color: #e74c3c;
-            border-radius: 50%;
-        }
-
-        .ac-led.on {
-            background-color: #2ecc71;
-            box-shadow: 0 0 8px #2ecc71;
-        }
-
-        /* Container Efek Salju & Angin */
-        #effects-container {
-            position: absolute;
-            top: 55px;
-            left: 0;
-            width: 100%;
-            height: 120px;
-            pointer-events: none;
-            overflow: hidden;
-            z-index: 5;
-        }
-
-        .snowflake {
-            position: absolute;
-            background: #ffffff;
-            border-radius: 50%;
-            opacity: 0.8;
-            animation: fall linear infinite;
-        }
-
-        .wind-line {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.6);
-            height: 2px;
-            border-radius: 2px;
-            animation: blow linear infinite;
-        }
-
-        @keyframes fall {
-            0% { transform: translateY(0) translateX(0); opacity: 1; }
-            100% { transform: translateY(140px) translateX(15px); opacity: 0; }
-        }
-
-        @keyframes blow {
-            0% { transform: translateX(-20px); opacity: 0; }
-            50% { opacity: 0.8; }
-            100% { transform: translateX(100px); opacity: 0; }
-        }
-
-        /* Person tepat di bawah AC */
-        .person-container {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 4;
-        }
-
-        .person-head {
-            width: 30px;
-            height: 30px;
-            background: #f39c12;
-            border-radius: 50%;
-            margin-bottom: 2px;
-        }
-
-        .person-body {
-            width: 45px;
-            height: 60px;
-            background: #e84393;
-            border-radius: 10px 10px 0 0;
-            position: relative;
-        }
-
-        /* Shivering Animation */
-        @keyframes shiver {
-            0% { transform: translateX(0); }
-            20% { transform: translateX(-2px) rotate(-1deg); }
-            40% { transform: translateX(2px) rotate(1deg); }
-            60% { transform: translateX(-2px) rotate(-1deg); }
-            80% { transform: translateX(2px) rotate(1deg); }
-            100% { transform: translateX(0); }
-        }
-
-        .shivering {
-            animation: shiver 0.2s infinite;
-        }
-
-        .status-text {
-            margin-top: 5px;
-            font-size: 13px;
-            font-weight: bold;
-            color: #2d3436;
-            white-space: nowrap;
-        }
-
-        /* Remote Control */
-        .remote {
-            background: #2f3640;
-            border-radius: 20px;
-            padding: 15px;
-            color: white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .remote-screen {
-            background: #718093;
-            padding: 10px;
             border-radius: 8px;
-            font-family: monospace;
-            font-size: 18px;
-            margin-bottom: 15px;
-            border: 2px inset #57606f;
-        }
-
-        .remote-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .btn-remote {
-            background: #747d8c;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
             cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #d4ac0d;
+        }
+        .error-msg {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+        .dashboard {
+            display: none;
+            text-align: left;
+        }
+        .card-info {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #f1c40f;
+        }
+        .card-info p {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .card-info p:last-child {
+            margin-bottom: 0;
+        }
+        .balance {
+            font-size: 24px;
+            color: #2ecc71;
             font-weight: bold;
+            margin: 10px 0;
         }
-
-        .btn-remote:hover {
-            background: #a4b0be;
+        .action-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
         }
-
-        .btn-power {
-            background: #eb4d4b;
-            grid-column: span 2;
+        .action-btns button {
+            margin-top: 0;
+            font-size: 14px;
+            padding: 10px;
         }
-        .btn-power:hover {
-            background: #ff7979;
+        .btn-red {
+            background: #e74c3c !important;
+            color: #fff !important;
+        }
+        .btn-red:hover {
+            background: #c0392b !important;
+        }
+        .blocked {
+            display: none;
+            color: #e74c3c;
+        }
+        .blocked h2 {
+            color: #e74c3c;
         }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <!-- Halaman Login -->
-        <div id="login-screen">
-            <h2>Simulasi AC Ruangan</h2>
-            <p style="color: #636e72; font-size: 14px; margin-bottom: 20px;">Masukkan nama Anda untuk masuk ke ruangan:</p>
-            <input type="text" id="username" placeholder="Nama Anda..." autocomplete="off">
-            <button onclick="handleLogin()">Masuk Ruangan</button>
+    <div class="container" id="mainContainer">
+        <!-- FORM LOGIN -->
+        <div id="loginSection">
+            <h2>BANK HARTA KARUN</h2>
+            <div class="form-group">
+                <label>Masukkan Password</label>
+                <input type="password" id="passwordInput" placeholder="Contoh: 12345">
+            </div>
+            <button onclick="handleLogin()">MASUK</button>
+            <div id="errorMsg" class="error-msg"></div>
         </div>
 
-        <!-- Halaman Simulasi -->
-        <div id="sim-screen">
-            <h3 id="greeting" style="margin-top: 0; color: #2d3436;"></h3>
+        <!-- DASHBOARD AKUN -->
+        <div id="dashboardSection" class="dashboard">
+            <h2>DASHBOARD AKUN</h2>
+            <div class="card-info">
+                <p><strong>Nama Pemilik:</strong> JOKO RAHMADSYAH</p>
+                <p><strong>Nomor Rekening:</strong> 888202601</p>
+                <p>Saldo Tersedia:</p>
+                <div class="balance" id="saldoDisplay">Rp 0</div>
+            </div>
+
+            <div class="form-group">
+                <label>Nominal Transaksi (Rp)</label>
+                <input type="number" id="nominalInput" placeholder="Masukkan jumlah">
+            </div>
+
+            <div class="action-btns">
+                <button onclick="tambahSaldo()">Setor</button>
+                <button onclick="tarikSaldo()" class="btn-red">Tarik</button>
+            </div>
             
-            <div class="room" id="room-bg">
-                <!-- Unit AC di atas kepala -->
-                <div class="ac-unit">
-                    <div id="ac-led" class="ac-led"></div>
-                    <span id="ac-display-text">OFF</span>
-                </div>
+            <button onclick="handleLogout()" style="background: #7f8c8d; color: #fff; margin-top: 15px;">Kunci Akun</button>
+        </div>
 
-                <!-- Efek Salju dan Angin -->
-                <div id="effects-container"></div>
-
-                <!-- Orang di bawah AC -->
-                <div class="person-container">
-                    <div class="person-head"></div>
-                    <div class="person-body" id="person-body"></div>
-                    <div class="status-text" id="person-status">Normal</div>
-                </div>
-            </div>
-
-            <!-- Remote AC -->
-            <div class="remote">
-                <div class="remote-screen" id="remote-lcd">
-                    Power: OFF | Temp: --°C
-                </div>
-                <div class="remote-buttons">
-                    <button class="btn-remote btn-power" onclick="togglePower()">POWER ON/OFF</button>
-                    <button class="btn-remote" onclick="changeTemp(1)">▲ Temp+</button>
-                    <button class="btn-remote" onclick="changeTemp(-1)">▼ Temp-</button>
-                </div>
-            </div>
+        <!-- HALAMAN TERBLOKIR -->
+        <div id="blockedSection" class="blocked">
+            <h2>AKUN TERBLOKIR</h2>
+            <p>Anda telah salah memasukkan password sebanyak 3 kali. Demi keamanan, akses akun dikunci secara permanen.</p>
         </div>
     </div>
 
     <script>
-        let userName = "";
-        let isPowerOn = false;
-        let currentTemp = 22; 
-        let effectInterval = null;
+        // Data Tersimpan Permanen menggunakan localStorage
+        const CORRECT_PASSWORD = "12345";
+        let attempts = parseInt(localStorage.getItem('bank_attempts')) || 0;
+        let isBlocked = localStorage.getItem('bank_blocked') === 'true';
+        let isLoggedIn = localStorage.getItem('bank_logged_in') === 'true';
+        let saldo = parseFloat(localStorage.getItem('bank_saldo')) || 1000000; // Saldo awal default Rp 1.000.000
+
+        const loginSection = document.getElementById('loginSection');
+        const dashboardSection = document.getElementById('dashboardSection');
+        const blockedSection = document.getElementById('blockedSection');
+        const errorMsg = document.getElementById('errorMsg');
+        const saldoDisplay = document.getElementById('saldoDisplay');
+
+        // Inisialisasi Tampilan Berdasarkan Status Sesi
+        function initApp() {
+            saldoDisplay.innerText = formatRupiah(saldo);
+
+            if (isBlocked) {
+                loginSection.style.display = 'none';
+                dashboardSection.style.display = 'none';
+                blockedSection.style.display = 'block';
+            } else if (isLoggedIn) {
+                loginSection.style.display = 'none';
+                dashboardSection.style.display = 'block';
+                blockedSection.style.display = 'none';
+            } else {
+                loginSection.style.display = 'block';
+                dashboardSection.style.display = 'none';
+                blockedSection.style.display = 'none';
+            }
+        }
 
         function handleLogin() {
-            const inputName = document.getElementById("username").value.trim();
-            if (inputName === "") {
-                alert("Silakan masukkan nama terlebih dahulu!");
+            const pass = document.getElementById('passwordInput').value;
+
+            if (pass === CORRECT_PASSWORD) {
+                isLoggedIn = true;
+                attempts = 0;
+                localStorage.setItem('bank_logged_in', 'true');
+                localStorage.setItem('bank_attempts', attempts);
+                initApp();
+            } else {
+                attempts++;
+                localStorage.setItem('bank_attempts', attempts);
+                
+                if (attempts >= 3) {
+                    isBlocked = true;
+                    localStorage.setItem('bank_blocked', 'true');
+                    initApp();
+                } else {
+                    errorMsg.innerText = `Password salah! Sisa kesempatan: ${3 - attempts}`;
+                }
+            }
+        }
+
+        function tambahSaldo() {
+            const nominal = parseFloat(document.getElementById('nominalInput').value);
+            if (isNaN(nominal) || nominal <= 0) {
+                alert("Masukkan nominal yang valid!");
                 return;
             }
-            userName = inputName;
-            document.getElementById("greeting").innerText = `Halo, ${userName}!`;
-            
-            document.getElementById("login-screen").style.display = "none";
-            document.getElementById("sim-screen").style.display = "block";
-            updateUI();
+            saldo += nominal;
+            localStorage.setItem('bank_saldo', saldo);
+            saldoDisplay.innerText = formatRupiah(saldo);
+            document.getElementById('nominalInput').value = '';
+            alert("Setor tunai berhasil!");
         }
 
-        function togglePower() {
-            isPowerOn = !isPowerOn;
-            updateUI();
-        }
-
-        function changeTemp(amount) {
-            if (!isPowerOn) return;
-            currentTemp += amount;
-            if (currentTemp < 16) currentTemp = 16;
-            if (currentTemp > 30) currentTemp = 30;
-            updateUI();
-        }
-
-        function updateUI() {
-            const led = document.getElementById("ac-led");
-            const acText = document.getElementById("ac-display-text");
-            const remoteLcd = document.getElementById("remote-lcd");
-            const roomBg = document.getElementById("room-bg");
-            const personBody = document.getElementById("person-body");
-            const personStatus = document.getElementById("person-status");
-            const effectsContainer = document.getElementById("effects-container");
-
-            // Bersihkan efek lama
-            clearInterval(effectInterval);
-            effectsContainer.innerHTML = "";
-
-            if (isPowerOn) {
-                led.classList.add("on");
-                acText.innerText = currentTemp + "°C";
-                remoteLcd.innerText = `Power: ON  |  Temp: ${currentTemp}°C`;
-
-                // Buat efek angin & salju jika AC aktif
-                if (currentTemp <= 24) {
-                    roomBg.style.background = "#dff9fb";
-                    personBody.classList.add("shivering");
-                    personStatus.innerText = "Brrr... Dingin ada salju & angin!";
-                    personStatus.style.color = "#0984e3";
-
-                    // Spawn salju & angin secara periodik
-                    effectInterval = setInterval(() => {
-                        createSnowflake();
-                        createWindLine();
-                    }, 300);
-
-                } else if (currentTemp >= 28) {
-                    roomBg.style.background = "#fffa65";
-                    personBody.classList.remove("shivering");
-                    personStatus.innerText = "Wah, agak gerah nih.";
-                    personStatus.style.color = "#e1b12c";
-                } else {
-                    roomBg.style.background = "#f1f2f6";
-                    personBody.classList.remove("shivering");
-                    personStatus.innerText = "Sejuk & Nyaman :)";
-                    personStatus.style.color = "#27ae60";
-
-                    // Angin sepoi-sepoi ringan
-                    effectInterval = setInterval(() => {
-                        createWindLine();
-                    }, 600);
-                }
-            } else {
-                led.classList.remove("on");
-                acText.innerText = "OFF";
-                remoteLcd.innerText = `Power: OFF | Temp: --°C`;
-                roomBg.style.background = "#f1f2f6";
-                personBody.classList.remove("shivering");
-                personStatus.innerText = "AC Mati (Panas)";
-                personStatus.style.color = "#2d3436";
+        function tarikSaldo() {
+            const nominal = parseFloat(document.getElementById('nominalInput').value);
+            if (isNaN(nominal) || nominal <= 0) {
+                alert("Masukkan nominal yang valid!");
+                return;
             }
+            if (nominal > saldo) {
+                alert("Saldo tidak mencukupi!");
+                return;
+            }
+            saldo -= nominal;
+            localStorage.setItem('bank_saldo', saldo);
+            saldoDisplay.innerText = formatRupiah(saldo);
+            document.getElementById('nominalInput').value = '';
+            alert("Penarikan berhasil!");
         }
 
-        function createSnowflake() {
-            const container = document.getElementById("effects-container");
-            const snow = document.createElement("div");
-            snow.classList.add("snowflake");
-            
-            const size = Math.random() * 5 + 3; // Ukuran 3px - 8px
-            snow.style.width = size + "px";
-            snow.style.height = size + "px";
-            snow.style.left = (Math.random() * 120 - 10) + "%"; // Menyebar dari tengah atas
-            snow.style.animationDuration = (Math.random() * 1 + 0.8) + "s";
-            
-            container.appendChild(snow);
-            setTimeout(() => snow.remove(), 2000);
+        function handleLogout() {
+            isLoggedIn = false;
+            localStorage.setItem('bank_logged_in', 'false');
+            document.getElementById('passwordInput').value = '';
+            initApp();
         }
 
-        function createWindLine() {
-            const container = document.getElementById("effects-container");
-            const wind = document.createElement("div");
-            wind.classList.add("wind-line");
-            
-            wind.style.width = (Math.random() * 30 + 20) + "px";
-            wind.style.top = (Math.random() * 80) + "px";
-            wind.style.left = (Math.random() * 80) + "%";
-            wind.style.animationDuration = (Math.random() * 0.5 + 0.5) + "s";
-            
-            container.appendChild(wind);
-            setTimeout(() => wind.remove(), 1000);
+        function formatRupiah(angka) {
+            return 'Rp ' + angka.toLocaleString('id-ID');
         }
+
+        // MATIKAN TOMBOL F12, INSPECT ELEMENT, DAN SHORTCUT DEVTOOLS
+        document.addEventListener('keydown', function (e) {
+            // F12
+            if (e.keyCode === 123) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C / Ctrl+U
+            if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
+                e.preventDefault();
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode === 85) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Matikan Klik Kanan
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        // Jalankan saat halaman dimuat
+        window.onload = initApp;
     </script>
 </body>
 </html>
