@@ -1,554 +1,78 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bank Harta Karun - Validasi Nama Bank</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 25px;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 520px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-        h2 {
-            margin-bottom: 20px;
-            color: #f1c40f;
-            letter-spacing: 1px;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 12px;
-            text-align: left;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 13px;
-            color: #ddd;
-        }
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #444;
-            background: rgba(0, 0, 0, 0.3);
-            color: #fff;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            transition: 0.3s;
-        }
-        input:focus, select:focus {
-            border-color: #f1c40f;
-            box-shadow: 0 0 8px rgba(241, 196, 15, 0.3);
-        }
-        select option {
-            background: #203a43;
-            color: #fff;
-        }
-        button {
-            width: 100%;
-            padding: 11px;
-            background: #f1c40f;
-            border: none;
-            color: #0f2027;
-            font-weight: bold;
-            font-size: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 5px;
-        }
-        button:hover {
-            background: #d4ac0d;
-        }
-        .error-msg {
-            color: #e74c3c;
-            font-size: 13px;
-            margin-top: 10px;
-            text-align: center;
-        }
-        .dashboard {
-            display: none;
-        }
-        .card-info {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 4px solid #f1c40f;
-        }
-        .card-info p {
-            margin-bottom: 4px;
-            font-size: 13px;
-        }
-        .balance {
-            font-size: 20px;
-            color: #2ecc71;
-            font-weight: bold;
-            margin-top: 4px;
-        }
-        .action-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .btn-green {
-            background: #2ecc71 !important;
-            color: #fff !important;
-        }
-        .btn-green:hover {
-            background: #27ae60 !important;
-        }
-        .btn-red {
-            background: #e74c3c !important;
-            color: #fff !important;
-        }
-        .btn-red:hover {
-            background: #c0392b !important;
-        }
-        
-        /* Bagian Filter & Mutasi */
-        .mutation-section {
-            margin-top: 15px;
-            background: rgba(0, 0, 0, 0.25);
-            padding: 12px;
-            border-radius: 8px;
-        }
-        .mutation-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .mutation-header span {
-            font-size: 13px;
-            color: #f1c40f;
-            font-weight: bold;
-        }
-        .filter-select {
-            width: auto;
-            padding: 5px 10px;
-            font-size: 12px;
-            background: rgba(0, 0, 0, 0.5);
-        }
-        .history-box {
-            max-height: 140px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-        .history-item {
-            font-size: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .history-item:last-child {
-            border-bottom: none;
-        }
-        .masuk { color: #2ecc71; }
-        .keluar { color: #e74c3c; }
+// Database aturan panjang nomor rekening bank di Indonesia
+const bankRules = {
+  bca: { name: "BCA", minLength: 10, maxLength: 10 },
+  mandiri: { name: "Mandiri", minLength: 13, maxLength: 13 },
+  bri: { name: "BRI", minLength: 15, maxLength: 15 },
+  bni: { name: "BNI", minLength: 10, maxLength: 10 },
+  cimb: { name: "CIMB Niaga", minLength: 10, maxLength: 13 },
+  danamon: { name: "Danamon", minLength: 10, maxLength: 12 },
+  permata: { name: "Permata", minLength: 10, maxLength: 10 },
+  bsi: { name: "BSI (Bank Syariah Indonesia)", minLength: 10, maxLength: 15 },
+  // Tambahkan bank lain sesuai kebutuhan
+};
 
-        .btn-delete {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            cursor: pointer;
-            width: auto;
-            margin-top: 0;
-            transition: 0.2s;
-        }
-        .btn-delete:hover {
-            background: #c0392b;
-        }
+/**
+ * Fungsi untuk memvalidasi nomor rekening bank
+ * @param {string} bankCode - Kode bank (contoh: 'bca', 'mandiri', 'bri')
+ * @param {string} accountNumber - Nomor rekening yang akan di significativa/validasi
+ * @returns {object} - Hasil validasi (status boolean dan pesan)
+ */
+function validateBankAccount(bankCode, accountNumber) {
+  // 1. Bersihkan spasi dan pastikan hanya berisi angka
+  const cleanAccountNo = accountNumber.trim();
+  const isNumeric = /^\d+$/.test(cleanAccountNo);
 
-        .backup-section {
-            margin-top: 12px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        .btn-blue {
-            background: #3498db !important;
-            color: #fff !important;
-            font-size: 13px !important;
-            padding: 8px !important;
-        }
-        .btn-blue:hover {
-            background: #2980b9 !important;
-        }
-        .btn-purple {
-            background: #9b59b6 !important;
-            color: #fff !important;
-            font-size: 13px !important;
-            padding: 8px !important;
-        }
-        .btn-purple:hover {
-            background: #8e44ad !important;
-        }
-        
-        .blocked {
-            display: none;
-            text-align: center;
-            color: #e74c3c;
-        }
-    </style>
-</head>
-<body>
+  if (!isNumeric) {
+    return {
+      isValid: false,
+      message: "Nomor rekening hanya boleh berisi angka."
+    };
+  }
 
-    <div class="container">
-        <!-- FORM LOGIN -->
-        <div id="loginSection">
-            <h2>BANK HARTA KARUN</h2>
-            
-            <!-- Validasi Nama Bank -->
-            <div class="form-group">
-                <label>Nama Bank Tujuan</label>
-                <input type="text" id="namaBankInput" placeholder="Masukkan nama bank (Contoh: Harta Karun)">
-            </div>
+  // 2. Cek apakah bank terdaftar di dalam rules
+  const bank = bankRules[bankCode.toLowerCase()];
+  if (!bank) {
+    return {
+      isValid: false,
+      message: "Kode bank tidak dikenali atau belum didukung."
+    };
+  }
 
-            <div class="form-group">
-                <label>Masukkan Password</label>
-                <input type="password" id="passwordInput" placeholder="Contoh: 12345">
-            </div>
-            
-            <button onclick="handleLogin()">MASUK</button>
-            <div id="errorMsg" class="error-msg"></div>
-            
-            <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
-                <label style="font-size: 11px; color: #aaa; text-align: center; margin-bottom: 4px;">Punya file cadangan data?</label>
-                <input type="file" id="restoreFileLogin" accept=".json" onchange="restoreData(event)" style="font-size: 11px; padding: 5px;">
-            </div>
-        </div>
+  // 3. Validasi panjang digit nomor rekening
+  const length = cleanAccountNo.length;
+  if (length < bank.minLength || length > bank.maxLength) {
+    let digitInfo = bank.minLength === bank.maxLength 
+      ? `harus ${bank.minLength}` 
+      : `antara ${bank.minLength} sampai ${bank.maxLength}`;
+    
+    return {
+      isValid: false,
+      message: `Nomor rekening ${bank.name} tidak valid. Panjang digit ${digitInfo} angka.`
+    };
+  }
 
-        <!-- DASHBOARD AKUN & MUTASI -->
-        <div id="dashboardSection" class="dashboard">
-            <h2>MUTASI KEUANGAN</h2>
-            <div class="card-info">
-                <p><strong>Nama Bank:</strong> <span id="displayNamaBank">HARTA KARUN</span></p>
-                <p><strong>Nama Pemilik:</strong> JOKO RAHMADSYAH</p>
-                <p><strong>Nomor Rekening:</strong> 888202601</p>
-                <p>Total Saldo:</p>
-                <div class="balance" id="saldoDisplay">Rp 0</div>
-            </div>
+  // Jika lolos semua pengecekan
+  return {
+    isValid: true,
+    message: `Nomor rekening ${bank.name} valid.`
+  };
+}
 
-            <div class="form-group">
-                <label>Nominal (Rp)</label>
-                <input type="number" id="nominalInput" placeholder="Masukkan jumlah uang">
-            </div>
+// ==========================================
+// CONTOH PENGGUNAAN (TESTING):
+// ==========================================
 
-            <div class="form-group">
-                <label>Keterangan / Kategori</label>
-                <select id="kategoriInput">
-                    <option value="Setor Tunai (Pemasukan)">Setor Tunai (Pemasukan)</option>
-                    <option value="Gaji / Pendapatan">Gaji / Pendapatan (Pemasukan)</option>
-                    <option value="Belanja / Kebutuhan">Belanja / Kebutuhan (Pengeluaran)</option>
-                    <option value="Transfer Keluar">Transfer Keluar (Pengeluaran)</option>
-                    <option value="Bayar Tagihan">Bayar Tagihan (Pengeluaran)</option>
-                    <option value="Biaya Admin">Biaya Admin (Pengeluaran)</option>
-                </select>
-            </div>
+// Test BCA (Harus 10 digit)
+console.log(validateBankAccount("bca", "1234567890")); 
+// Output: { isValid: true, message: 'Nomor rekening BCA valid.' }
 
-            <div class="action-grid">
-                <button onclick="prosesTransaksi('masuk')" class="btn-green">Setor (Masuk)</button>
-                <button onclick="prosesTransaksi('keluar')" class="btn-red">Keluarkan (Keluar)</button>
-            </div>
+console.log(validateBankAccount("bca", "12345")); 
+// Output: { isValid: false, message: 'Nomor rekening BCA tidak valid. Panjang digit harus 10 angka.' }
 
-            <!-- KOTAK MUTASI & FILTER -->
-            <div class="mutation-section">
-                <div class="mutation-header">
-                    <span>RIWAYAT MUTASI</span>
-                    <select id="filterMutasi" class="filter-select" onchange="renderRiwayat()">
-                        <option value="semua">Semua Transaksi</option>
-                        <option value="masuk">Pemasukan Saja</option>
-                        <option value="keluar">Pengeluaran Saja</option>
-                    </select>
-                </div>
-                <div class="history-box" id="historyList">
-                    <!-- Data mutasi akan tampil di sini -->
-                </div>
-            </div>
+// Test Mandiri (Harus 13 digit)
+console.log(validateBankAccount("mandiri", "1230009876543")); 
+// Output: { isValid: true, message: 'Nomor rekening Mandiri valid.' }
 
-            <!-- TOMBOL BACKUP & RESTORE -->
-            <div class="backup-section">
-                <button onclick="backupData()" class="btn-blue">Backup Data</button>
-                <label for="restoreFile" class="btn-purple" style="display:inline-block; text-align:center; border-radius:8px; cursor:pointer; font-weight:bold; padding:8px; font-size:13px; line-height:normal; margin-top:5px;">Restore Data</label>
-                <input type="file" id="restoreFile" accept=".json" onchange="restoreData(event)" style="display:none;">
-            </div>
-            
-            <button onclick="handleLogout()" style="background: #7f8c8d; color: #fff; margin-top: 10px;">Kunci Sesi</button>
-        </div>
-
-        <!-- HALAMAN TERBLOKIR -->
-        <div id="blockedSection" class="blocked">
-            <h2>AKUN TERBLOKIR</h2>
-            <p>Anda telah salah memasukkan password sebanyak 3 kali. Demi keamanan, akses akun dikunci permanen.</p>
-        </div>
-    </div>
-
-    <script>
-        const CORRECT_BANK_NAME = "harta karun";
-        const CORRECT_PASSWORD = "12345";
-        let attempts = parseInt(localStorage.getItem('bank_attempts')) || 0;
-        let isBlocked = localStorage.getItem('bank_blocked') === 'true';
-        let isLoggedIn = localStorage.getItem('bank_logged_in') === 'true';
-        let saldo = parseFloat(localStorage.getItem('bank_saldo')) || 0;
-        let riwayat = JSON.parse(localStorage.getItem('bank_riwayat')) || [];
-
-        const loginSection = document.getElementById('loginSection');
-        const dashboardSection = document.getElementById('dashboardSection');
-        const blockedSection = document.getElementById('blockedSection');
-        const errorMsg = document.getElementById('errorMsg');
-        const saldoDisplay = document.getElementById('saldoDisplay');
-        const historyList = document.getElementById('historyList');
-
-        function initApp() {
-            saldoDisplay.innerText = formatRupiah(saldo);
-            renderRiwayat();
-
-            if (isBlocked) {
-                loginSection.style.display = 'none';
-                dashboardSection.style.display = 'none';
-                blockedSection.style.display = 'block';
-            } else if (isLoggedIn) {
-                loginSection.style.display = 'none';
-                dashboardSection.style.display = 'block';
-                blockedSection.style.display = 'none';
-            } else {
-                loginSection.style.display = 'block';
-                dashboardSection.style.display = 'none';
-                blockedSection.style.display = 'none';
-            }
-        }
-
-        function handleLogin() {
-            const inputBank = document.getElementById('namaBankInput').value.trim().toLowerCase();
-            const pass = document.getElementById('passwordInput').value;
-
-            // Validasi Nama Bank terlebih dahulu
-            if (inputBank !== CORRECT_BANK_NAME) {
-                errorMsg.innerText = "Nama bank salah! Masukkan 'Harta Karun'";
-                return;
-            }
-
-            // Validasi Password
-            if (pass === CORRECT_PASSWORD) {
-                isLoggedIn = true;
-                attempts = 0;
-                localStorage.setItem('bank_logged_in', 'true');
-                localStorage.setItem('bank_attempts', attempts);
-                initApp();
-            } else {
-                attempts++;
-                localStorage.setItem('bank_attempts', attempts);
-                
-                if (attempts >= 3) {
-                    isBlocked = true;
-                    localStorage.setItem('bank_blocked', 'true');
-                    initApp();
-                } else {
-                    errorMsg.innerText = `Password salah! Sisa kesempatan: ${3 - attempts}`;
-                }
-            }
-        }
-
-        function prosesTransaksi(tipe) {
-            const nominal = parseFloat(document.getElementById('nominalInput').value);
-            const kategori = document.getElementById('kategoriInput').value;
-
-            if (isNaN(nominal) || nominal <= 0) {
-                alert("Masukkan nominal uang yang valid!");
-                return;
-            }
-
-            if (tipe === 'keluar') {
-                if (nominal > saldo) {
-                    alert("Saldo tidak mencukupi untuk pengeluaran ini!");
-                    return;
-                }
-                saldo -= nominal;
-            } else {
-                saldo += nominal;
-            }
-
-            const waktu = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-
-            const dataTransaksi = {
-                id: Date.now(),
-                kategori: kategori,
-                nominal: nominal,
-                tipe: tipe,
-                waktu: waktu
-            };
-
-            riwayat.unshift(dataTransaksi);
-            if (riwayat.length > 50) riwayat.pop();
-
-            localStorage.setItem('bank_saldo', saldo);
-            localStorage.setItem('bank_riwayat', JSON.stringify(riwayat));
-
-            document.getElementById('nominalInput').value = '';
-            initApp();
-        }
-
-        function hapusMutasi(id) {
-            const index = riwayat.findIndex(item => item.id === id);
-            if (index !== -1) {
-                const item = riwayat[index];
-                
-                if (item.tipe === 'masuk') {
-                    if (saldo < item.nominal) {
-                        alert("Tidak dapat menghapus mutasi ini karena saldo saat ini tidak mencukupi untuk membatalkan pemasukan!");
-                        return;
-                    }
-                    saldo -= item.nominal;
-                } else {
-                    saldo += item.nominal;
-                }
-
-                riwayat.splice(index, 1);
-                
-                localStorage.setItem('bank_saldo', saldo);
-                localStorage.setItem('bank_riwayat', JSON.stringify(riwayat));
-                
-                initApp();
-                alert("Mutasi berhasil dihapus dan saldo telah disesuaikan.");
-            }
-        }
-
-        function backupData() {
-            const dataBank = {
-                saldo: saldo,
-                riwayat: riwayat,
-                attempts: attempts,
-                isBlocked: isBlocked
-            };
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataBank));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "backup_bank_harta_karun.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        function restoreData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const parsedData = JSON.parse(e.target.result);
-                    if (parsedData.saldo !== undefined && parsedData.riwayat !== undefined) {
-                        saldo = parsedData.saldo;
-                        riwayat = parsedData.riwayat;
-                        attempts = parsedData.attempts || 0;
-                        isBlocked = parsedData.isBlocked || false;
-
-                        localStorage.setItem('bank_saldo', saldo);
-                        localStorage.setItem('bank_riwayat', JSON.stringify(riwayat));
-                        localStorage.setItem('bank_attempts', attempts);
-                        localStorage.setItem('bank_blocked', isBlocked);
-
-                        initApp();
-                        alert("Data berhasil dipulihkan (Restore)!");
-                    } else {
-                        alert("Format file cadangan tidak valid!");
-                    }
-                } catch (err) {
-                    alert("Gagal membaca file backup.");
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function renderRiwayat() {
-            const filterValue = document.getElementById('filterMutasi').value;
-            historyList.innerHTML = '';
-
-            let filteredRiwayat = riwayat.filter(item => {
-                if (filterValue === 'masuk') return item.tipe === 'masuk';
-                if (filterValue === 'keluar') return item.tipe === 'keluar';
-                return true;
-            });
-
-            if (filteredRiwayat.length === 0) {
-                historyList.innerHTML = '<div style="font-size: 12px; color: #aaa; text-align: center; padding: 10px;">Tidak ada mutasi untuk kategori ini.</div>';
-                return;
-            }
-
-            filteredRiwayat.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                const tanda = item.tipe === 'masuk' ? '+' : '-';
-                const warnaClass = item.tipe === 'masuk' ? 'masuk' : 'keluar';
-
-                div.innerHTML = `
-                    <div style="flex: 1; padding-right: 8px;">
-                        <strong>${item.kategori}</strong><br>
-                        <span style="font-size: 10px; color: #aaa;">${item.waktu}</span>
-                    </div>
-                    <div class="${warnaClass}" style="font-weight: bold; margin-right: 10px; white-space: nowrap;">
-                        ${tanda} ${formatRupiah(item.nominal)}
-                    </div>
-                    <div>
-                        <button class="btn-delete" onclick="hapusMutasi(${item.id})">Hapus</button>
-                    </div>
-                `;
-                historyList.appendChild(div);
-            });
-        }
-
-        function handleLogout() {
-            isLoggedIn = false;
-            localStorage.setItem('bank_logged_in', 'false');
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('namaBankInput').value = '';
-            initApp();
-        }
-
-        function formatRupiah(angka) {
-            return 'Rp ' + angka.toLocaleString('id-ID');
-        }
-
-        document.addEventListener('keydown', function (e) {
-            if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || (e.ctrlKey && e.keyCode === 85)) {
-                e.preventDefault();
-                return false;
-            }
-        });
-
-        document.addEventListener('contextmenu', function (e) {
-            e.preventDefault();
-        });
-
-        window.onload = initApp;
-    </script>
-</body>
-</html>
+// Test BRI (Harus 15 digit)
+console.log(validateBankAccount("bri", "034101000123501")); 
+// Output: { isValid: true, message: 'Nomor rekening BRI valid.' }
