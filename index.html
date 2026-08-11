@@ -80,6 +80,11 @@
             color: #0d6efd;
             margin-top: 5px;
         }
+        .hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -103,6 +108,7 @@
         <div class="form-group">
             <label for="accountNumber">Nomor Rekening:</label>
             <input type="text" id="accountNumber" placeholder="Masukkan nomor rekening" required>
+            <div class="hint">Contoh BCA: <b>1234567890</b></div>
         </div>
 
         <button type="submit" id="submitBtn">Cek Rekening</button>
@@ -121,12 +127,11 @@
       bsi: { name: "BSI (Bank Syariah Indonesia)", minLength: 10, maxLength: 15 }
     };
 
-    // Simulasi database nama pemilik rekening berdasarkan nomor rekening
-    // (Pada aplikasi nyata, bagian ini diganti dengan hasil respon dari API Backend / Payment Gateway)
+    // Database tiruan untuk mencocokkan nomor rekening dan nama pemiliknya
     const mockDatabase = {
-        "1234567890": "BUDI SANTOSO",      // Contoh BCA
-        "1230009876543": "SITI AMINAH",    // Contoh Mandiri
-        "034101000123501": "AHMAD FAUZI",  // Contoh BRI
+        "1234567890": { bank: "bca", name: "SARIPUDIN" },
+        "1230009876543": { bank: "mandiri", name: "SITI AMINAH" },
+        "034101000123501": { bank: "bri", name: "AHMAD FAUZI" },
     };
 
     const bankForm = document.getElementById('bankForm');
@@ -160,7 +165,7 @@
             return;
         }
 
-        // Simulasi proses pengecekan ke server/API
+        // Simulasi proses pencarian ke server/API
         submitBtn.textContent = "Mencari...";
         submitBtn.disabled = true;
 
@@ -168,21 +173,27 @@
             submitBtn.textContent = "Cek Rekening";
             submitBtn.disabled = false;
 
-            // Cek apakah nomor rekening terdaftar di "database tiruan"
-            if (mockDatabase[accountNumber]) {
-                const ownerName = mockDatabase[accountNumber];
+            // Cek apakah nomor rekening ada di database tiruan dan sesuai bank-nya
+            const accountData = mockDatabase[accountNumber];
+
+            if (accountData && accountData.bank === bankCode) {
                 showResult(true, `
                     <div>Nomor Rekening Valid!</div>
-                    <div class="account-name">Nama Pemilik: ${ownerName}</div>
+                    <div class="account-name">Nama Pemilik: ${accountData.name}</div>
+                `);
+            } else if (bankCode === "bca" && accountNumber === "1234567890") {
+                showResult(true, `
+                    <div>Nomor Rekening Valid!</div>
+                    <div class="account-name">Nama Pemilik: SARIPUDIN</div>
                 `);
             } else {
-                // Jika tidak ada di database simulasi, berikan contoh nama acak atau pesan tidak ditemukan
+                // Contoh default jika nomor rekening lain diinput
                 showResult(true, `
                     <div>Nomor Rekening Valid!</div>
-                    <div class="account-name">Nama Pemilik: (Contoh) NAMA NASABAH ${bank.name}</div>
+                    <div class="account-name">Nama Pemilik: NASABAH ${bank.name}</div>
                 `);
             }
-        }, 1000); // Efek loading 1 detik
+        }, 800);
     });
 
     function showResult(isValid, htmlMessage) {
