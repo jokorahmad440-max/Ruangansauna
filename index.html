@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bank Harta Karun - Mutasi Lengkap</title>
+    <title>Bank Harta Karun - Mutasi Lengkap & Hapus</title>
     <style>
         * {
             box-sizing: border-box;
@@ -153,22 +153,39 @@
             background: rgba(0, 0, 0, 0.5);
         }
         .history-box {
-            max-height: 150px;
+            max-height: 160px;
             overflow-y: auto;
             padding-right: 4px;
         }
         .history-item {
             font-size: 12px;
-            padding: 6px 0;
+            padding: 8px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
         .history-item:last-child {
             border-bottom: none;
         }
         .masuk { color: #2ecc71; }
         .keluar { color: #e74c3c; }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            width: auto;
+            margin-top: 0;
+            transition: 0.2s;
+        }
+        .btn-delete:hover {
+            background: #c0392b;
+        }
         
         .blocked {
             display: none;
@@ -185,7 +202,7 @@
             <h2>BANK HARTA KARUN</h2>
             <div class="form-group">
                 <label>Masukkan Password</label>
-                <input type="password" id="passwordInput" placeholder="Password">
+                <input type="password" id="passwordInput" placeholder="Contoh: 12345">
             </div>
             <button onclick="handleLogin()">MASUK</button>
             <div id="errorMsg" class="error-msg"></div>
@@ -327,6 +344,7 @@
             const waktu = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
             const dataTransaksi = {
+                id: Date.now(), // ID unik untuk menghapus item spesifik
                 kategori: kategori,
                 nominal: nominal,
                 tipe: tipe, // 'masuk' atau 'keluar'
@@ -334,7 +352,7 @@
             };
 
             riwayat.unshift(dataTransaksi);
-            if (riwayat.length > 50) riwayat.pop(); // Menyimpan hingga 50 riwayat mutasi
+            if (riwayat.length > 50) riwayat.pop();
 
             localStorage.setItem('bank_saldo', saldo);
             localStorage.setItem('bank_riwayat', JSON.stringify(riwayat));
@@ -343,15 +361,41 @@
             initApp();
         }
 
+        function hapusMutasi(id) {
+            const index = riwayat.findIndex(item => item.id === id);
+            if (index !== -1) {
+                const item = riwayat[index];
+                
+                // Konfirmasi atau sesuaikan saldo jika mutasi yang masuk dihapus
+                if (item.tipe === 'masuk') {
+                    if (saldo < item.nominal) {
+                        alert("Tidak dapat menghapus mutasi ini karena saldo saat ini tidak mencukupi untuk membatalkan pemasukan!");
+                        return;
+                    }
+                    saldo -= item.nominal; // Batalkan penambahan saldo dari pemasukan tersebut
+                } else {
+                    saldo += item.nominal; // Kembalikan saldo jika pengeluaran dibatalkan/dihapus
+                }
+
+                riwayat.splice(index, 1); // Hapus dari array
+                
+                // Simpan perubahan ke localStorage
+                localStorage.setItem('bank_saldo', saldo);
+                localStorage.setItem('bank_riwayat', JSON.stringify(riwayat));
+                
+                initApp();
+                alert("Mutasi berhasil dihapus dan saldo telah disesuaikan.");
+            }
+        }
+
         function renderRiwayat() {
             const filterValue = document.getElementById('filterMutasi').value;
             historyList.innerHTML = '';
 
-            // Filter data sesuai pilihan dropdown
             let filteredRiwayat = riwayat.filter(item => {
                 if (filterValue === 'masuk') return item.tipe === 'masuk';
                 if (filterValue === 'keluar') return item.tipe === 'keluar';
-                return true; // 'semua'
+                return true;
             });
 
             if (filteredRiwayat.length === 0) {
@@ -366,12 +410,15 @@
                 const warnaClass = item.tipe === 'masuk' ? 'masuk' : 'keluar';
 
                 div.innerHTML = `
-                    <div>
+                    <div style="flex: 1; padding-right: 8px;">
                         <strong>${item.kategori}</strong><br>
                         <span style="font-size: 10px; color: #aaa;">${item.waktu}</span>
                     </div>
-                    <div class="${warnaClass}" style="font-weight: bold; align-self: center;">
+                    <div class="${warnaClass}" style="font-weight: bold; margin-right: 10px; white-space: nowrap;">
                         ${tanda} ${formatRupiah(item.nominal)}
+                    </div>
+                    <div>
+                        <button class="btn-delete" onclick="hapusMutasi(${item.id})">Hapus</button>
                     </div>
                 `;
                 historyList.appendChild(div);
