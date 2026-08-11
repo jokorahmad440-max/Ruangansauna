@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validasi Nomor Rekening Bank</title>
+    <title>Validasi & Cek Nama Rekening Bank</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,7 +21,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
         }
         h2 {
             margin-bottom: 20px;
@@ -60,10 +60,8 @@
         }
         #result {
             margin-top: 15px;
-            padding: 10px;
+            padding: 12px;
             border-radius: 4px;
-            text-align: center;
-            font-weight: bold;
             display: none;
         }
         .success {
@@ -76,12 +74,18 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+        .account-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #0d6efd;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Cek Nomor Rekening</h2>
+    <h2>Cek Rekening & Nama</h2>
     <form id="bankForm">
         <div class="form-group">
             <label for="bankSelect">Pilih Bank:</label>
@@ -92,8 +96,6 @@
                 <option value="bri">BRI</option>
                 <option value="bni">BNI</option>
                 <option value="cimb">CIMB Niaga</option>
-                <option value="danamon">Danamon</option>
-                <option value="permata">Permata</option>
                 <option value="bsi">BSI (Bank Syariah Indonesia)</option>
             </select>
         </div>
@@ -103,29 +105,35 @@
             <input type="text" id="accountNumber" placeholder="Masukkan nomor rekening" required>
         </div>
 
-        <button type="submit">Validasi Rekening</button>
+        <button type="submit" id="submitBtn">Cek Rekening</button>
     </form>
 
     <div id="result"></div>
 </div>
 
 <script>
-    // Aturan panjang digit rekening bank
     const bankRules = {
       bca: { name: "BCA", minLength: 10, maxLength: 10 },
       mandiri: { name: "Mandiri", minLength: 13, maxLength: 13 },
       bri: { name: "BRI", minLength: 15, maxLength: 15 },
       bni: { name: "BNI", minLength: 10, maxLength: 10 },
       cimb: { name: "CIMB Niaga", minLength: 10, maxLength: 13 },
-      danamon: { name: "Danamon", minLength: 10, maxLength: 12 },
-      permata: { name: "Permata", minLength: 10, maxLength: 10 },
       bsi: { name: "BSI (Bank Syariah Indonesia)", minLength: 10, maxLength: 15 }
+    };
+
+    // Simulasi database nama pemilik rekening berdasarkan nomor rekening
+    // (Pada aplikasi nyata, bagian ini diganti dengan hasil respon dari API Backend / Payment Gateway)
+    const mockDatabase = {
+        "1234567890": "BUDI SANTOSO",      // Contoh BCA
+        "1230009876543": "SITI AMINAH",    // Contoh Mandiri
+        "034101000123501": "AHMAD FAUZI",  // Contoh BRI
     };
 
     const bankForm = document.getElementById('bankForm');
     const bankSelect = document.getElementById('bankSelect');
     const accountNumberInput = document.getElementById('accountNumber');
     const resultDiv = document.getElementById('result');
+    const submitBtn = document.getElementById('submitBtn');
 
     bankForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -133,45 +141,54 @@
         const bankCode = bankSelect.value;
         const accountNumber = accountNumberInput.value.trim();
 
-        // Validasi input kosong
         if (!bankCode) {
             showResult(false, "Silakan pilih bank terlebih dahulu.");
             return;
         }
 
-        // Cek apakah hanya berisi angka
-        const isNumeric = /^\d+$/.test(accountNumber);
-        if (!isNumeric) {
+        // Validasi angka
+        if (!/^\d+$/.test(accountNumber)) {
             showResult(false, "Nomor rekening hanya boleh berisi angka.");
             return;
         }
 
-        // Ambil aturan bank
+        // Validasi panjang digit
         const bank = bankRules[bankCode];
         const length = accountNumber.length;
-
-        // Cek panjang digit
         if (length < bank.minLength || length > bank.maxLength) {
-            let digitInfo = bank.minLength === bank.maxLength 
-                ? `harus ${bank.minLength}` 
-                : `antara ${bank.minLength} sampai ${bank.maxLength}`;
-            
-            showResult(false, `Nomor rekening ${bank.name} tidak valid. Panjang digit ${digitInfo} angka.`);
+            showResult(false, `Nomor rekening ${bank.name} tidak valid. Panjang digit harus ${bank.minLength} angka.`);
             return;
         }
 
-        // Jika berhasil
-        showResult(true, `Nomor rekening ${bank.name} valid (${length} digit).`);
+        // Simulasi proses pengecekan ke server/API
+        submitBtn.textContent = "Mencari...";
+        submitBtn.disabled = true;
+
+        setTimeout(() => {
+            submitBtn.textContent = "Cek Rekening";
+            submitBtn.disabled = false;
+
+            // Cek apakah nomor rekening terdaftar di "database tiruan"
+            if (mockDatabase[accountNumber]) {
+                const ownerName = mockDatabase[accountNumber];
+                showResult(true, `
+                    <div>Nomor Rekening Valid!</div>
+                    <div class="account-name">Nama Pemilik: ${ownerName}</div>
+                `);
+            } else {
+                // Jika tidak ada di database simulasi, berikan contoh nama acak atau pesan tidak ditemukan
+                showResult(true, `
+                    <div>Nomor Rekening Valid!</div>
+                    <div class="account-name">Nama Pemilik: (Contoh) NAMA NASABAH ${bank.name}</div>
+                `);
+            }
+        }, 1000); // Efek loading 1 detik
     });
 
-    function showResult(isValid, message) {
+    function showResult(isValid, htmlMessage) {
         resultDiv.style.display = 'block';
-        resultDiv.textContent = message;
-        if (isValid) {
-            resultDiv.className = 'success';
-        } else {
-            resultDiv.className = 'error';
-        }
+        resultDiv.innerHTML = htmlMessage;
+        resultDiv.className = isValid ? 'success' : 'error';
     }
 </script>
 
