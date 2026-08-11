@@ -3,170 +3,333 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulasi Orang Kedinginan Karena AC</title>
+    <title>Simulasi AC & Suhu Ruangan</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
+        }
+
+        body {
+            background: linear-gradient(135deg, #74b9ff, #dfe6e9);
             margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            transition: background-color 0.5s ease;
         }
-        .container {
-            background-color: white;
+
+        .card {
+            background: white;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 600px;
+            max-width: 450px;
             text-align: center;
         }
-        h1 {
-            color: #333;
-            font-size: 24px;
-            margin-bottom: 10px;
+
+        /* Login Screen */
+        #login-screen h2 {
+            color: #2d3436;
+            margin-bottom: 20px;
         }
-        .ac-display {
-            font-size: 48px;
-            font-weight: bold;
-            margin: 20px 0;
-            padding: 15px;
-            border-radius: 10px;
-            background: #eef2f3;
-            color: #333;
-            transition: all 0.5s ease;
-        }
-        .status-box {
-            font-size: 18px;
-            margin: 20px 0;
-            padding: 15px;
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #dfe6e9;
             border-radius: 8px;
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .character {
-            font-size: 80px;
-            margin: 20px 0;
-            transition: transform 0.3s ease;
-        }
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-        button {
-            padding: 10px 20px;
             font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #0984e3;
+        }
+
+        button {
+            background-color: #0984e3;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
             font-weight: bold;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #74b9ff;
+        }
+
+        /* Simulation Screen */
+        #sim-screen {
+            display: none;
+        }
+
+        .room {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            background: #f1f2f6;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #ced6e0;
+            margin-bottom: 20px;
+            transition: background 0.5s;
+        }
+
+        /* AC Unit */
+        .ac-unit {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            width: 120px;
+            height: 40px;
+            background: #2f3640;
+            border-radius: 5px;
+            color: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .ac-led {
+            width: 8px;
+            height: 8px;
+            background-color: #e74c3c;
+            border-radius: 50%;
+        }
+
+        .ac-led.on {
+            background-color: #2ecc71;
+            box-shadow: 0 0 8px #2ecc71;
+        }
+
+        /* Person */
+        .person-container {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .person-head {
+            width: 30px;
+            height: 30px;
+            background: #f39c12;
+            border-radius: 50%;
+            margin-bottom: 2px;
+        }
+
+        .person-body {
+            width: 45px;
+            height: 60px;
+            background: #e84393;
+            border-radius: 10px 10px 0 0;
+            position: relative;
+        }
+
+        /* Shivering Animation for Cold */
+        @keyframes shiver {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-2px) rotate(-1deg); }
+            40% { transform: translateX(2px) rotate(1deg); }
+            60% { transform: translateX(-2px) rotate(-1deg); }
+            80% { transform: translateX(2px) rotate(1deg); }
+            100% { transform: translateX(0); }
+        }
+
+        .shivering {
+            animation: shiver 0.2s infinite;
+        }
+
+        .status-text {
+            margin-top: 5px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #2d3436;
+        }
+
+        /* Remote Control */
+        .remote {
+            background: #2f3640;
+            border-radius: 20px;
+            padding: 15px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .remote-screen {
+            background: #718093;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #00pion;
+            border: 2px inset #57606f;
+        }
+
+        .remote-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .btn-remote {
+            background: #747d8c;
+            color: white;
+            padding: 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            color: white;
-            transition: opacity 0.2s;
+            font-weight: bold;
         }
-        button:hover {
-            opacity: 0.85;
+
+        .btn-remote:hover {
+            background: #a4b0be;
         }
-        .btn-panas { background-color: #ff9800; }
-        .btn-normal { background-color: #4caf50; }
-        .btn-dingin { background-color: #00bcd4; }
-        .btn-ekstrem { background-color: #2196f3; }
-        
-        /* Efek Kondisi Tubuh */
-        .shivering {
-            animation: shake 0.15s infinite;
+
+        .btn-power {
+            background: #eb4d4b;
+            grid-column: span 2;
         }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            20% { transform: translate(-1px, -2px) rotate(-1deg); }
-            40% { transform: translate(-3px, 0px) rotate(1deg); }
-            60% { transform: translate(3px, 2px) rotate(0deg); }
-            80% { transform: translate(1px, -1px) rotate(1deg); }
-            100% { transform: translate(-1px, 2px) rotate(-1deg); }
+        .btn-power:hover {
+            background: #ff7979;
         }
     </style>
 </head>
-<body id="bodyBg">
+<body>
 
-    <div class="container">
-        <h1>Simulasi Suhu AC & Reaksi Rian</h1>
-        <p>Atur suhu AC untuk melihat perubahan ekspresi dan reaksi Rian!</p>
-
-        <!-- Tampilan Suhu AC -->
-        <div class="ac-display" id="acDisplay">28°C</div>
-
-        <!-- Karakter Visual -->
-        <div class="character" id="characterEmoji">🥵</div>
-
-        <!-- Status / Dialog Reaksi -->
-        <div class="status-box" id="statusText">
-            "Wah, gila! Di luar panas banget. Sisk, tolong nyalain AC di suhu 28°C dulu ya!"
+    <div class="card">
+        <!-- Halaman Login -->
+        <div id="login-screen">
+            <h2>Simulasi AC Ruangan</h2>
+            <p style="color: #636e72; font-size: 14px; margin-bottom: 20px;">Masukkan nama Anda untuk masuk ke ruangan:</p>
+            <input type="text" id="username" placeholder="Nama Anda..." autocomplete="off">
+            <button onclick="handleLogin()">Masuk Ruangan</button>
         </div>
 
-        <!-- Tombol Pengendali AC -->
-        <div class="btn-group">
-            <button class="btn-panas" onclick="ubahSuhu(28, 'panas')">Set 28°C (Gerah)</button>
-            <button class="btn-normal" onclick="ubahSuhu(24, 'normal')">Set 24°C (Sejuk)</button>
-            <button class="btn-dingin" onclick="ubahSuhu(18, 'dingin')">Set 18°C (Dingin)</button>
-            <button class="btn-ekstrem" onclick="ubahSuhu(16, 'ekstrem')">Set 16°C (Membeku)</button>
+        <!-- Halaman Simulasi -->
+        <div id="sim-screen">
+            <h3 id="greeting" style="margin-top: 0; color: #2d3436;"></h3>
+            
+            <div class="room" id="room-bg">
+                <!-- Unit AC -->
+                <div class="ac-unit">
+                    <div id="ac-led" class="ac-led"></div>
+                    <span id="ac-display-text">OFF</span>
+                </div>
+
+                <!-- Orang di bawah AC -->
+                <div class="person-container">
+                    <div class="person-head"></div>
+                    <div class="person-body" id="person-body"></div>
+                    <div class="status-text" id="person-status">Normal</div>
+                </div>
+            </div>
+
+            <!-- Remote AC -->
+            <div class="remote">
+                <div class="remote-screen" id="remote-lcd">
+                    Power: OFF | Temp: --°C
+                </div>
+                <div class="remote-buttons">
+                    <button class="btn-remote btn-power" onclick="togglePower()">POWER ON/OFF</button>
+                    <button class="btn-remote" onclick="changeTemp(1)">▲ Temp+</button>
+                    <button class="btn-remote" onclick="changeTemp(-1)">▼ Temp-</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        function ubahSuhu(suhu, kondisi) {
-            const display = document.getElementById('acDisplay');
-            const emoji = document.getElementById('characterEmoji');
-            const status = document.getElementById('statusText');
-            const body = document.getElementById('bodyBg');
+        let userName = "";
+        let isPowerOn = false;
+        let currentTemp = 24; // Suhu default AC
 
-            display.innerText = suhu + "°C";
+        function handleLogin() {
+            const inputName = document.getElementById("username").value.trim();
+            if (inputName === "") {
+                alert("Silakan masukkan nama terlebih dahulu!");
+                return;
+            }
+            userName = inputName;
+            document.getElementById("greeting").innerText = `Halo, ${userName}!`;
             
-            // Hapus animasi menggigil terlebih dahulu
-            emoji.classList.remove('shivering');
+            // Transisi layar
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("sim-screen").style.display = "block";
+            updateUI();
+        }
 
-            if (kondisi === 'panas') {
-                body.style.backgroundColor = "#f4f7f6";
-                display.style.backgroundColor = "#ffebee";
-                display.style.color = "#c62828";
-                emoji.innerText = "🥵";
-                status.innerText = `"Ah, lumayan agak mendingan. Suhu 28°C pas buat adaptasi awal."`;
-            } 
-            else if (kondisi === 'normal') {
-                body.style.backgroundColor = "#e8f5e9";
-                display.style.backgroundColor = "#e8f5e9";
-                display.style.color = "#2e7d32";
-                emoji.innerText = "😌";
-                status.innerText = `"Nah, mantap! Di 24°C rasanya seger banget, pas di badan."`;
-            } 
-            else if (kondisi === 'dingin') {
-                body.style.backgroundColor = "#e0f7fa";
-                display.style.backgroundColor = "#e0f7fa";
-                display.style.color = "#00838f";
-                emoji.innerText = "🥶";
-                status.innerText = `"Brrr... Kok mendadak dingin banget ya? Jari-jariku mulai kaku!"`;
-                emoji.classList.add('shivering');
-            } 
-            else if (kondisi === 'ekstrem') {
-                body.style.backgroundColor = "#bbdefb";
-                display.style.backgroundColor = "#bbdefb";
-                display.style.color = "#1565c0";
-                emoji.innerText = "🧊";
-                status.innerText = `"Waduh 16°C! Ampun Sis, aku udah jadi es batu hidup! Tolong naikin lagi suhunya! Brrr..."`;
-                emoji.classList.add('shivering');
+        function togglePower() {
+            isPowerOn = !isPowerOn;
+            updateUI();
+        }
+
+        function changeTemp(amount) {
+            if (!isPowerOn) return;
+            currentTemp += amount;
+            // Batasi suhu AC antara 16°C sampai 30°C
+            if (currentTemp < 16) currentTemp = 16;
+            if (currentTemp > 30) currentTemp = 30;
+            updateUI();
+        }
+
+        function updateUI() {
+            const led = document.getElementById("ac-led");
+            const acText = document.getElementById("ac-display-text");
+            const remoteLcd = document.getElementById("remote-lcd");
+            const roomBg = document.getElementById("room-bg");
+            const personBody = document.getElementById("person-body");
+            const personStatus = document.getElementById("person-status");
+
+            if (isPowerOn) {
+                led.classList.add("on");
+                acText.innerText = currentTemp + "°C";
+                remoteLcd.innerText = `Power: ON  |  Temp: ${currentTemp}°C`;
+
+                // Logika efek suhu dingin
+                if (currentTemp <= 20) {
+                    roomBg.style.background = "#dff9fb"; // Nuansa es/dingin
+                    personBody.classList.add("shivering");
+                    personStatus.innerText = "Brrr... Dingin Banget!";
+                    personStatus.style.color = "#0984e3";
+                } else if (currentTemp >= 28) {
+                    roomBg.style.background = "#fffa65"; // Nuansa hangat
+                    personBody.classList.remove("shivering");
+                    personStatus.innerText = "Wah, agak gerah nih.";
+                    personStatus.style.color = "#e1b12c";
+                } else {
+                    roomBg.style.background = "#f1f2f6"; // Normal
+                    personBody.classList.remove("shivering");
+                    personStatus.innerText = "Sejuk & Nyaman :)";
+                    personStatus.style.color = "#27ae60";
+                }
+            } else {
+                led.classList.remove("on");
+                acText.innerText = "OFF";
+                remoteLcd.innerText = `Power: OFF | Temp: --°C`;
+                roomBg.style.background = "#f1f2f6";
+                personBody.classList.remove("shivering");
+                personStatus.innerText = "AC Mati (Panas)";
+                personStatus.style.color = "#2d3436";
             }
         }
     </script>
-
 </body>
 </html>
