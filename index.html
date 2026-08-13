@@ -3,179 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cek Validasi Nama Rekening & E-Wallet</title>
+    <title>Simulasi Angin & Pohon</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
             margin: 0;
-            padding: 40px;
+            padding: 0;
+            height: 100vh;
             display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
+            background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            transition: background 0.5s ease;
         }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            width: 100%;
-            max-width: 420px;
+
+        /* Status Panas / Normal */
+        body.hot {
+            background: linear-gradient(to bottom, #ff9966, #ff5e62);
         }
-        h2 {
-            margin-bottom: 5px;
-            color: #1a1a1a;
-            text-align: center;
+
+        h1 {
+            margin-bottom: 10px;
+            color: #333;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.7);
         }
-        p.subtitle {
-            text-align: center;
-            color: #666;
-            font-size: 13px;
-            margin-bottom: 25px;
+
+        #status {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #222;
         }
-        .form-group {
-            margin-bottom: 18px;
+
+        /* Arena Simulasi */
+        .stage {
+            position: relative;
+            width: 400px;
+            height: 300px;
+            border-bottom: 5px solid #5c4033;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding-bottom: 10px;
         }
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            color: #444;
-            font-size: 14px;
+
+        /* Pohon */
+        .tree {
+            font-size: 80px;
+            transform-origin: bottom center;
+            transition: transform 0.2s ease;
         }
-        select, input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #dcdcdc;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
+
+        /* Efek Puting Beliung (Bergoyang Cepat & Liar) */
+        .storm {
+            animation: putingBeliung 0.15s infinite alternate ease-in-out;
         }
-        select:focus, input:focus {
-            border-color: #0066cc;
+
+        @keyframes putingBeliung {
+            0% { transform: rotate(-25deg) skewX(-15deg); }
+            100% { transform: rotate(25deg) skewX(15deg); }
         }
+
+        /* Efek Hancur / Tumbang */
+        .destroyed {
+            transform: rotate(90deg) translateY(20px);
+            filter: grayscale(80%);
+        }
+
+        /* Kipas Angin */
+        .fan {
+            font-size: 60px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s linear;
+        }
+
+        .fan.spinning {
+            animation: spin 0.3s infinite linear;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Tombol Kontrol */
         button {
-            width: 100%;
-            padding: 12px;
-            background-color: #0066cc;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.2s;
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: background 0.2s;
         }
-        button:hover {
-            background-color: #004fb3;
-        }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            display: none;
-            font-size: 14px;
-        }
-        .success {
-            background-color: #e6f4ea;
-            color: #137333;
-            border: 1px solid #ceead6;
-        }
-        .error {
-            background-color: #fce8e6;
-            color: #c5221f;
-            border: 1px solid #fad2cf;
-        }
-        .loading {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-            margin-top: 15px;
-            display: none;
+
+        button.active {
+            background-color: #2ed573;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>Cek Pemilik Rekening</h2>
-        <p class="subtitle">Validasi otomatis Bank & E-Wallet</p>
-        
-        <div class="form-group">
-            <label for="bankCode">Pilih Bank / E-Wallet:</label>
-            <select id="bankCode">
-                <option value="dana">DANA</option>
-                <option value="ovo">OVO</option>
-                <option value="gopay">GoPay</option>
-                <option value="bca">BCA</option>
-                <option value="mandiri">Mandiri</option>
-                <option value="bni">BNI</option>
-                <option value="bri">BRI</option>
-            </select>
-        </div>
+    <h1>Simulasi Kipas Angin & Pohon</h1>
+    <div id="status">Kipas Mati: Pohon Hancur & Kepanasan!</div>
 
-        <div class="form-group">
-            <label for="accountNumber">Nomor Rekening / No. Handphone:</label>
-            <input type="text" id="accountNumber" placeholder="Contoh: 08123456789 atau 12345678">
-        </div>
-
-        <button id="checkBtn" onclick="verifyAccount()">Periksa Rekening</button>
-
-        <div id="loadingText" class="loading">Sedang memverifikasi ke server...</div>
-        <div id="resultBox" class="result"></div>
+    <div class="stage">
+        <!-- Pohon -->
+        <div id="tree" class="tree destroyed">🌳</div>
+        <!-- Kipas Angin -->
+        <div id="fan" class="fan">🌀</div>
     </div>
 
+    <button id="toggleBtn" onclick="toggleFan()">Hidupkan Kipas</button>
+
     <script>
-        async function verifyAccount() {
-            const bankCode = document.getElementById('bankCode').value;
-            const accountNumber = document.getElementById('accountNumber').value.trim();
-            const resultBox = document.getElementById('resultBox');
-            const loadingText = document.getElementById('loadingText');
-            const checkBtn = document.getElementById('checkBtn');
+        const fan = document.getElementById('fan');
+        const tree = document.getElementById('tree');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const statusText = document.getElementById('status');
+        const body = document.body;
 
-            if (!accountNumber) {
-                alert('Nomor rekening atau nomor HP tidak boleh kosong!');
-                return;
-            }
+        let isFanOn = false;
 
-            // Reset tampilan & aktifkan status loading
-            resultBox.style.display = 'none';
-            loadingText.style.display = 'block';
-            checkBtn.disabled = true;
+        function toggleFan() {
+            isFanOn = !isFanOn;
 
-            try {
-                // Contoh menggunakan endpoint publik/api checker pihak ketiga yang mendukung inquiry
-                // Catatan: Anda bisa mengganti URL fetch ini dengan endpoint API backend Anda sendiri (seperti Xendit/Midtrans/API lokal)
-                const response = await fetch(`https://api-rekening.cyclic.app/v1/inquiry?bank=${bankCode}&account=${accountNumber}`);
-                const data = await response.json();
-
-                loadingText.style.display = 'none';
-                checkBtn.disabled = false;
-                resultBox.style.display = 'block';
-
-                // Logika pengecekan respon API
-                if (data && (data.status === true || data.success === true || data.account_name)) {
-                    let ownerName = data.account_name || data.data.account_name;
-                    resultBox.className = 'result success';
-                    resultBox.innerHTML = `<strong>Status: VALID</strong><br>Nama Pemilik: <b>${ownerName}</b>`;
-                } else {
-                    resultBox.className = 'result error';
-                    resultBox.innerHTML = `<strong>Status: TIDAK VALID</strong><br>Nomor tidak ditemukan atau salah ketik.`;
-                }
-
-            } catch (error) {
-                loadingText.style.display = 'none';
-                checkBtn.disabled = false;
-                resultBox.style.display = 'block';
+            if (isFanOn) {
+                // Kipas Hidup -> Angin Puting Beliung
+                fan.classList.add('spinning');
+                tree.classList.remove('destroyed');
+                tree.classList.add('storm');
                 
-                // Fallback jika API publik sedang limit/maintenance, arahkan menggunakan backend pribadi
-                resultBox.className = 'result error';
-                resultBox.innerHTML = `<strong>Gagal Terhubung</strong><br>Pastikan koneksi internet stabil atau gunakan API key pribadi (Midtrans/Xendit).`;
+                body.classList.remove('hot');
+                toggleBtn.textContent = "Matikan Kipas";
+                toggleBtn.classList.add('active');
+                statusText.textContent = "Kipas Hidup: Terjadi Angin Puting Beliung!";
+            } else {
+                // Kipas Mati -> Hancur & Kepanasan
+                fan.classList.remove('spinning');
+                tree.classList.remove('storm');
+                tree.classList.add('destroyed');
+                
+                body.classList.add('hot');
+                toggleBtn.textContent = "Hidupkan Kipas";
+                toggleBtn.classList.remove('active');
+                statusText.textContent = "Kipas Mati: Pohon Hancur & Kepanasan!";
             }
         }
     </script>
