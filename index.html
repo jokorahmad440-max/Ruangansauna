@@ -37,6 +37,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 16px;
+            box-sizing: border-box;
         }
 
         .login-box button {
@@ -52,6 +53,13 @@
 
         .login-box button:hover {
             background: #218838;
+        }
+
+        .error-msg {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 5px;
+            min-height: 18px;
         }
 
         /* Area Simulasi */
@@ -167,19 +175,22 @@
 <body>
 
 <div class="container">
+    <!-- Halaman Login -->
     <div class="login-box" id="loginSection">
         <h2>Simulasi AC Kartun</h2>
         <p>Masukkan nama Anda:</p>
         <input type="text" id="usernameInput" placeholder="Nama Anda..." autocomplete="off">
-        <br>
+        <div class="error-msg" id="errorMsg"></div>
         <button onclick="handleLogin()">Masuk</button>
     </div>
 
+    <!-- Halaman Simulasi -->
     <div class="simulation-box" id="simulationSection">
         <h2>Ruangan AC</h2>
         <div class="greeting" id="greetingText"></div>
         
         <div class="room" id="roomBg">
+            <!-- Karakter Manusia Kartun SVG -->
             <svg class="cartoon-character" id="cartoonChar" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
                 <rect id="bodyColor" x="30" y="65" width="40" height="45" rx="10" fill="#ff7675"/>
                 <circle cx="50" cy="38" r="22" fill="#ffeaa7"/>
@@ -193,6 +204,7 @@
             <div class="status" id="statusText">Suhu ruangan nyaman.</div>
         </div>
 
+        <!-- Remote AC Simulasi -->
         <div class="remote">
             <div class="remote-screen">
                <span>AC: <span id="tempDisplay">24°C</span></span>
@@ -214,4 +226,94 @@
     const loginSection = document.getElementById('loginSection');
     const simulationSection = document.getElementById('simulationSection');
     const usernameInput = document.getElementById('usernameInput');
-    const greetingText = document.getElementById('greeting
+    const errorMsg = document.getElementById('errorMsg');
+    const greetingText = document.getElementById('greetingText');
+
+    const cartoonChar = document.getElementById('cartoonChar');
+    const bodyColor = document.getElementById('bodyColor');
+    const faceExpression = document.getElementById('faceExpression');
+    const statusText = document.getElementById('statusText');
+    const tempDisplay = document.getElementById('tempDisplay');
+    const modeIcon = document.getElementById('modeIcon');
+    const roomBg = document.getElementById('roomBg');
+
+    // Bisa tekan Enter langsung di keyboard
+    usernameInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            handleLogin();
+        }
+    });
+
+    function handleLogin() {
+        const name = usernameInput.value.trim();
+        if (name === "") {
+            errorMsg.innerText = "Nama tidak boleh kosong!";
+            usernameInput.focus();
+            return;
+        }
+
+        errorMsg.innerText = "";
+        loginSection.style.display = 'none';
+        simulationSection.style.display = 'block';
+        greetingText.innerText = `Halo, ${name}! Silakan atur suhu di remote AC bawah.`;
+    }
+
+    function changeTemp(amount) {
+        currentTemp += amount;
+        if (currentTemp < minTemp) currentTemp = minTemp;
+        if (currentTemp > maxTemp) currentTemp = maxTemp;
+        
+        updateSimulation();
+    }
+
+    function updateSimulation() {
+        tempDisplay.innerText = currentTemp + '°C';
+        cartoonChar.classList.remove('shivering');
+
+        if (currentTemp >= 27) {
+            bodyColor.setAttribute("fill", "#ff7675");
+            roomBg.style.background = '#ffebee';
+            modeIcon.innerText = "🔥 HOT";
+            statusText.innerText = "Uh, gerah banget! Karakter mulai berkeringat.";
+            faceExpression.innerHTML = `
+                <circle cx="42" cy="38" r="3" fill="#2d3436"/>
+                <circle cx="58" cy="38" r="3" fill="#2d3436"/>
+                <path d="M 43 52 Q 50 44 57 52" stroke="#2d3436" stroke-width="2" fill="none" stroke-linecap="round"/>
+            `;
+        } else if (currentTemp >= 22 && currentTemp <= 26) {
+            bodyColor.setAttribute("fill", "#74b9ff");
+            roomBg.style.background = '#eef2f3';
+            modeIcon.innerText = "❄️ COOL";
+            statusText.innerText = "Suhu sejuk dan pas. Karakter merasa santai.";
+            faceExpression.innerHTML = `
+                <circle cx="42" cy="38" r="2.5" fill="#2d3436"/>
+                <circle cx="58" cy="38" r="2.5" fill="#2d3436"/>
+                <path d="M 44 48 Q 50 54 56 48" stroke="#2d3436" stroke-width="2" fill="none" stroke-linecap="round"/>
+            `;
+        } else if (currentTemp >= 19 && currentTemp <= 21) {
+            bodyColor.setAttribute("fill", "#0984e3");
+            roomBg.style.background = '#e3f2fd';
+            modeIcon.innerText = "❄️ CHILL";
+            statusText.innerText = "Mulai dingin, karakter merapatkan bajunya.";
+            faceExpression.innerHTML = `
+                <circle cx="42" cy="38" r="2.5" fill="#2d3436"/>
+                <circle cx="58" cy="38" r="2.5" fill="#2d3436"/>
+                <circle cx="50" cy="50" r="3" fill="#2d3436"/>
+            `;
+        } else {
+            bodyColor.setAttribute("fill", "#0984e3");
+            roomBg.style.background = '#bbdefb';
+            modeIcon.innerText = "🥶 FREEZE";
+            cartoonChar.classList.add('shivering');
+            statusText.innerText = "Brrr... Sangat dingin! Karakter menggigil kedinginan!";
+            faceExpression.innerHTML = `
+                <line x1="40" y1="37" x2="44" y2="39" stroke="#2d3436" stroke-width="2"/>
+                <line x1="56" y1="37" x2="60" y2="39" stroke="#2d3436" stroke-width="2"/>
+                <line x1="43" y1="50" x2="57" y2="50" stroke="#2d3436" stroke-width="2"/>
+            `;
+        }
+    }
+</script>
+
+</body>
+</html>
