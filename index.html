@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulasi Suhu AC & Login Nama</title>
+    <title>Simulasi AC & Karakter Kartun</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
+            background: #eef2f5;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -17,19 +17,19 @@
 
         .container {
             background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
             text-align: center;
-            width: 350px;
+            width: 380px;
         }
 
         h2 {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             color: #333;
         }
 
-        /* Tampilan Form Login */
+        /* Bagian Login */
         .login-box input[type="text"] {
             width: 80%;
             padding: 10px;
@@ -56,22 +56,35 @@
 
         /* Area Simulasi */
         .simulation-box {
-            display: none; /* Disembunyikan dulu sebelum login */
+            display: none;
+        }
+
+        .greeting {
+            font-size: 14px;
+            color: #007bff;
+            margin-bottom: 10px;
+            font-weight: bold;
         }
 
         .room {
             background: #eef2f3;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
             position: relative;
             overflow: hidden;
             transition: background 0.5s ease;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
         }
 
-        .person {
-            font-size: 80px;
-            margin: 10px 0;
+        /* Karakter Kartun SVG */
+        .cartoon-character {
+            width: 100px;
+            height: 120px;
             transition: transform 0.3s ease;
         }
 
@@ -85,83 +98,109 @@
         }
 
         .shivering {
-            animation: shake 0.2s infinite;
+            animation: shake 0.15s infinite;
         }
 
         .status {
             font-weight: bold;
-            font-size: 15px;
+            font-size: 13px;
             margin-top: 10px;
             color: #555;
-            min-height: 45px;
+            min-height: 35px;
         }
 
-        .ac-control {
+        /* Remote AC Fisik Styling */
+        .remote {
+            background: #333;
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            margin-top: 10px;
+        }
+
+        .remote-screen {
+            background: #111;
+            color: #00ffcc;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            border: 2px solid #555;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .remote-buttons {
             display: flex;
             justify-content: center;
-            align-items: center;
-            gap: 15px;
-            margin-top: 15px;
+            gap: 10px;
         }
 
-        .ac-control button {
-            background: #007bff;
+        .remote-btn {
+            background: #555;
             color: white;
             border: none;
-            padding: 8px 14px;
-            font-size: 18px;
-            border-radius: 5px;
+            width: 45px;
+            height: 45px;
+            font-size: 20px;
+            border-radius: 50%;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .ac-control button:hover {
-            background: #0056b3;
+        .remote-btn:hover {
+            background: #777;
         }
 
-        .temp-display {
-            font-size: 22px;
-            font-weight: bold;
-            color: #333;
-            min-width: 60px;
-        }
-
-        .greeting {
-            font-size: 16px;
-            color: #007bff;
-            margin-bottom: 15px;
-            font-weight: bold;
+        .remote-btn:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Bagian Login -->
     <div class="login-box" id="loginSection">
-        <h2>Masuk Simulasi</h2>
-        <p>Masukkan nama Anda untuk mulai:</p>
+        <h2>Simulasi AC Kartun</h2>
+        <p>Masukkan nama Anda:</p>
         <input type="text" id="usernameInput" placeholder="Nama Anda..." autocomplete="off">
         <br>
         <button onclick="handleLogin()">Masuk</button>
     </div>
 
-    <!-- Bagian Simulasi AC -->
     <div class="simulation-box" id="simulationSection">
-        <h2>Simulasi Suhu AC</h2>
+        <h2>Ruangan AC</h2>
         <div class="greeting" id="greetingText"></div>
         
         <div class="room" id="roomBg">
-            <div class="person" id="personEmoji">😊</div>
+            <svg class="cartoon-character" id="cartoonChar" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                <rect id="bodyColor" x="30" y="65" width="40" height="45" rx="10" fill="#ff7675"/>
+                <circle cx="50" cy="38" r="22" fill="#ffeaa7"/>
+                <path d="M 28 35 Q 35 15 50 15 Q 65 15 72 35 Z" fill="#d63031"/>
+                <g id="faceExpression">
+                    <circle cx="42" cy="38" r="2.5" fill="#2d3436"/>
+                    <circle cx="58" cy="38" r="2.5" fill="#2d3436"/>
+                    <path d="M 44 48 Q 50 54 56 48" stroke="#2d3436" stroke-width="2" fill="none" stroke-linecap="round"/>
+                </g>
+            </svg>
             <div class="status" id="statusText">Suhu ruangan nyaman.</div>
         </div>
 
-        <div>
-            <label>Suhu AC:</label>
-            <div class="ac-control">
-                <button onclick="changeTemp(-1)">-</button>
-                <span class="temp-display" id="tempDisplay">24°C</span>
-                <button onclick="changeTemp(1)">+</button>
+        <div class="remote">
+            <div class="remote-screen">
+               <span>AC: <span id="tempDisplay">24°C</span></span>
+               <span id="modeIcon" style="font-size: 16px;">❄️ ON</span>
+            </div>
+            <div class="remote-buttons">
+                <button class="remote-btn" onclick="changeTemp(-1)">-</button>
+                <button class="remote-btn" onclick="changeTemp(1)">+</button>
             </div>
         </div>
     </div>
@@ -175,60 +214,4 @@
     const loginSection = document.getElementById('loginSection');
     const simulationSection = document.getElementById('simulationSection');
     const usernameInput = document.getElementById('usernameInput');
-    const greetingText = document.getElementById('greetingText');
-
-    const personEmoji = document.getElementById('personEmoji');
-    const statusText = document.getElementById('statusText');
-    const tempDisplay = document.getElementById('tempDisplay');
-    const roomBg = document.getElementById('roomBg');
-
-    function handleLogin() {
-        const name = usernameInput.value.trim();
-        if (name === "") {
-            alert("Silakan masukkan nama Anda terlebih dahulu!");
-            return;
-        }
-
-        // Sembunyikan form login, tampilkan area simulasi
-        loginSection.style.display = 'none';
-        simulationSection.style.display = 'block';
-
-        // Tampilkan sapaan dengan nama pengguna
-        greetingText.innerText = `Halo, ${name}! Atur suhu AC sesuai kenyamananmu.`;
-    }
-
-    function changeTemp(amount) {
-        currentTemp += amount;
-        if (currentTemp < minTemp) currentTemp = minTemp;
-        if (currentTemp > maxTemp) currentTemp = maxTemp;
-        
-        updateSimulation();
-    }
-
-    function updateSimulation() {
-        tempDisplay.innerText = currentTemp + '°C';
-        personEmoji.classList.remove('shivering');
-
-        if (currentTemp >= 27) {
-            personEmoji.innerText = '🥵';
-            statusText.innerText = 'Suhu panas! Karakter merasa gerah dan berkeringat.';
-            roomBg.style.background = '#ffebee';
-        } else if (currentTemp >= 22 && currentTemp <= 26) {
-            personEmoji.innerText = '😊';
-            statusText.innerText = 'Suhu ruangan nyaman dan sejuk. Karakter merasa santai.';
-            roomBg.style.background = '#eef2f3';
-        } else if (currentTemp >= 19 && currentTemp <= 21) {
-            personEmoji.innerText = '🥶';
-            statusText.innerText = 'Mulai dingin! Karakter merasa kedinginan.';
-            roomBg.style.background = '#e3f2fd';
-        } else {
-            personEmoji.innerText = '🥶';
-            personEmoji.classList.add('shivering');
-            statusText.innerText = 'Sangat dingin! Karakter menggigil kedinginan!';
-            roomBg.style.background = '#bbdefb';
-        }
-    }
-</script>
-
-</body>
-</html>
+    const greetingText = document.getElementById('greeting
