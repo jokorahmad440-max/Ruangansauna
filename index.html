@@ -1,319 +1,977 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulasi AC & Karakter Kartun</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #eef2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluktuasi Keuangan Bulanan</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #0b0d14;
+    --card-bg: #151926;
+    --card-border: #1e2436;
+    --text-main: #f1f5f9;
+    --text-muted: #64748b;
+    --accent-gold: #eab308;
+    --accent-green: #20c997;
+    --accent-red: #f43f5e;
+    --accent-blue: #38bdf8;
+  }
 
-        .container {
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-            text-align: center;
-            width: 380px;
-        }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    min-height: 100vh;
+    user-select: none;
+    -webkit-user-select: none;
+  }
 
-        h2 {
-            margin-bottom: 10px;
-            color: #333;
-        }
+  .ui-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  }
 
-        /* Bagian Login */
-        .login-box input[type="text"] {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
+  .border-b-green::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: #20c997; border-radius: 0 0 12px 12px;
+  }
+  .border-b-red::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: #f43f5e; border-radius: 0 0 12px 12px;
+  }
+  .border-b-gold::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: #eab308; border-radius: 0 0 12px 12px;
+  }
+  .border-b-blue::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: #38bdf8; border-radius: 0 0 12px 12px;
+  }
 
-        .login-box button {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+  .btn-toggle-active {
+    background-color: #a36209;
+    color: #fef08a;
+    border: 1px solid #ca8a04;
+  }
+  
+  .btn-toggle-inactive {
+    background-color: transparent;
+    color: #64748b;
+    border: 1px solid transparent;
+  }
 
-        .login-box button:hover {
-            background: #218838;
-        }
+  .nav-btn-active {
+    background-color: rgba(234, 179, 8, 0.15);
+    color: #eab308;
+    border: 1px solid rgba(234, 179, 8, 0.4);
+  }
 
-        .error-msg {
-            color: #dc3545;
-            font-size: 13px;
-            margin-top: 5px;
-            min-height: 18px;
-        }
+  .nav-btn-inactive {
+    background-color: transparent;
+    color: #94a3b8;
+    border: 1px solid transparent;
+  }
+  .nav-btn-inactive:hover {
+    background-color: #151926;
+    color: #f1f5f9;
+  }
 
-        /* Area Simulasi */
-        .simulation-box {
-            display: none;
-        }
+  .custom-input {
+    background-color: #0d1017;
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+    border-radius: 8px;
+    padding: 8px 12px;
+    outline: none;
+  }
+  .custom-input:focus {
+    border-color: var(--accent-gold);
+  }
 
-        .greeting {
-            font-size: 14px;
-            color: #007bff;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+  }
 
-        .room {
-            background: #eef2f3;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            position: relative;
-            overflow: hidden;
-            transition: background 0.5s ease;
-            height: 180px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-        }
-
-        /* Karakter Kartun SVG */
-        .cartoon-character {
-            width: 100px;
-            height: 120px;
-            transition: transform 0.3s ease;
-        }
-
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            20% { transform: translate(-1px, -2px) rotate(-1deg); }
-            40% { transform: translate(-3px, 0px) rotate(1deg); }
-            60% { transform: translate(3px, 2px) rotate(0deg); }
-            80% { transform: translate(1px, -1px) rotate(1deg); }
-            100% { transform: translate(-1px, 2px) rotate(-1deg); }
-        }
-
-        .shivering {
-            animation: shake 0.15s infinite;
-        }
-
-        .status {
-            font-weight: bold;
-            font-size: 13px;
-            margin-top: 10px;
-            color: #555;
-            min-height: 35px;
-        }
-
-        /* Remote AC Fisik Styling */
-        .remote {
-            background: #333;
-            border-radius: 15px;
-            padding: 15px;
-            color: white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            margin-top: 10px;
-        }
-
-        .remote-screen {
-            background: #111;
-            color: #00ffcc;
-            font-family: 'Courier New', Courier, monospace;
-            padding: 8px;
-            border-radius: 8px;
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            border: 2px solid #555;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
-
-        .remote-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .remote-btn {
-            background: #555;
-            color: white;
-            border: none;
-            width: 45px;
-            height: 45px;
-            font-size: 20px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .remote-btn:hover {
-            background: #777;
-        }
-
-        .remote-btn:active {
-            transform: scale(0.95);
-        }
-    </style>
+  .wave-svg { width: 100%; height: 50px; }
+  
+  .toast {
+    position: fixed; top: 20px; right: 20px; z-index: 9999;
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    padding: 12px 20px; border-radius: 10px; font-size: 13px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+</style>
 </head>
-<body>
+<body class="p-4 md:p-6">
 
-<div class="container">
-    <!-- Halaman Login -->
-    <div class="login-box" id="loginSection">
-        <h2>Simulasi AC Kartun</h2>
-        <p>Masukkan nama Anda:</p>
-        <input type="text" id="usernameInput" placeholder="Nama Anda..." autocomplete="off">
-        <div class="error-msg" id="errorMsg"></div>
-        <button onclick="handleLogin()">Masuk</button>
-    </div>
-
-    <!-- Halaman Simulasi -->
-    <div class="simulation-box" id="simulationSection">
-        <h2>Ruangan AC</h2>
-        <div class="greeting" id="greetingText"></div>
+  <!-- LAYAR LOGIN -->
+  <div id="loginOverlay" class="modal-overlay">
+    <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl w-11/12 max-w-sm text-center shadow-2xl">
+      <div class="w-16 h-16 bg-amber-500/10 border border-amber-500/30 text-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
+        <i class="fa-solid fa-user-lock"></i>
+      </div>
+      <h2 class="text-xl font-bold text-white mb-1">Akses Terkunci</h2>
+      <p class="text-xs text-slate-400 mb-6">Masukkan Username & Password untuk masuk</p>
+      
+      <form onsubmit="handleLogin(event)" class="space-y-3">
+        <div>
+          <input type="text" id="inputUser" class="custom-input w-full text-center text-sm" placeholder="Username" required autofocus>
+        </div>
+        <div>
+          <input type="password" id="inputPass" class="custom-input w-full text-center text-sm" placeholder="Password" required>
+        </div>
+        <p id="loginErr" class="text-rose-500 text-xs hidden">Username atau Password salah!</p>
         
-        <div class="room" id="roomBg">
-            <!-- Karakter Manusia Kartun SVG -->
-            <svg class="cartoon-character" id="cartoonChar" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-                <rect id="bodyColor" x="30" y="65" width="40" height="45" rx="10" fill="#ff7675"/>
-                <circle cx="50" cy="38" r="22" fill="#ffeaa7"/>
-                <path d="M 28 35 Q 35 15 50 15 Q 65 15 72 35 Z" fill="#d63031"/>
-                <g id="faceExpression">
-                    <circle cx="42" cy="38" r="2.5" fill="#2d3436"/>
-                    <circle cx="58" cy="38" r="2.5" fill="#2d3436"/>
-                    <path d="M 44 48 Q 50 54 56 48" stroke="#2d3436" stroke-width="2" fill="none" stroke-linecap="round"/>
-                </g>
-            </svg>
-            <div class="status" id="statusText">Suhu ruangan nyaman.</div>
+        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-sm transition cursor-pointer mt-2">
+          Masuk Aplikasi
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <!-- DASHBOARD UTAMA -->
+  <div id="mainDashboard" class="max-w-7xl mx-auto flex flex-col md:flex-row gap-6 hidden">
+    
+    <!-- SIDEBAR NAVIGASI KIRI -->
+    <aside class="w-full md:w-64 flex-shrink-0 space-y-4">
+      <div class="flex items-center gap-3 p-2">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 text-xl font-bold">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-amber-500 leading-none">Fluktuasi</h1>
+          <p class="text-xs text-slate-400 mt-1">Keuangan Bulanan</p>
+        </div>
+      </div>
+
+      <!-- MENU APLIKASI -->
+      <nav class="space-y-2 pt-2">
+        <button id="navFluktuasi" onclick="switchTab('fluktuasi')" class="w-full text-left px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-3 transition cursor-pointer nav-btn-active">
+          <i class="fa-solid fa-chart-pie text-base"></i>
+          <span>Fluktuasi Keuangan</span>
+        </button>
+
+        <button id="navPencatatan" onclick="switchTab('pencatatan')" class="w-full text-left px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-3 transition cursor-pointer nav-btn-inactive">
+          <i class="fa-solid fa-receipt text-base"></i>
+          <span>Dana Masuk & Keluar</span>
+        </button>
+      </nav>
+
+      <div class="pt-4 border-t border-slate-800 space-y-2">
+        <button onclick="lockApp()" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-300 p-2.5 rounded-xl border border-slate-800 transition cursor-pointer flex items-center justify-center gap-2 text-xs">
+          <i class="fa-solid fa-lock text-xs"></i> Keluar
+        </button>
+      </div>
+    </aside>
+
+    <!-- AREA KONTEN UTAMA -->
+    <main class="flex-1 space-y-4">
+
+      <!-- HEADER FILTER BULAN -->
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <h2 id="pageTitle" class="text-lg font-bold text-slate-100">Fluktuasi Keuangan</h2>
+        <div class="flex items-center gap-2">
+          <select id="ms" onchange="changeMonth()" class="custom-input text-xs w-44 cursor-pointer">
+            <!-- Isi dari JS -->
+          </select>
+        </div>
+      </div>
+
+      <!-- TAB 1: FLUKTUASI KEUANGAN -->
+      <div id="tabFluktuasi" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="ui-card border-b-green">
+            <div class="text-[11px] font-semibold text-emerald-400 tracking-wider">PEMASUKAN</div>
+            <div id="di" class="text-2xl font-bold mt-1 text-white">Rp 0</div>
+            <div class="text-xs text-slate-400 mt-2 flex items-center gap-1">
+              <span id="dic" class="bg-emerald-950/80 text-emerald-400 text-[10px] font-semibold px-1.5 py-0.5 rounded border border-emerald-800/50">+0%</span>
+              <span>vs bulan lalu</span>
+            </div>
+          </div>
+
+          <div class="ui-card border-b-red">
+            <div class="text-[11px] font-semibold text-rose-400 tracking-wider">PENGELUARAN</div>
+            <div id="de" class="text-2xl font-bold mt-1 text-white">Rp 0</div>
+            <div class="text-xs text-slate-400 mt-2 flex items-center gap-1">
+              <span id="dec" class="bg-rose-950/80 text-rose-400 text-[10px] font-semibold px-1.5 py-0.5 rounded border border-rose-800/50">+0%</span>
+              <span>vs bulan lalu</span>
+            </div>
+          </div>
+
+          <div id="cardSaldo" class="ui-card border-b-gold">
+            <div class="text-[11px] font-semibold text-slate-400 tracking-wider">SALDO</div>
+            <div id="db" class="text-2xl font-bold mt-1 text-white">Rp 0</div>
+            <div class="mt-2">
+              <span id="dbs" class="bg-amber-950/60 text-amber-500 text-[10px] font-semibold px-2 py-0.5 rounded border border-amber-800/50">Stabil</span>
+            </div>
+          </div>
+
+          <div class="ui-card border-b-green" id="cardFluktuasi">
+            <div class="flex justify-between items-center">
+              <span class="text-[11px] font-semibold text-emerald-400 tracking-wider">FLUKTUASI</span>
+              <i id="fluArrow" class="fa-solid fa-arrows-split-up-and-left text-emerald-400 text-sm"></i>
+            </div>
+            <div class="flex items-baseline gap-2 mt-1">
+              <span id="fluPct" class="text-2xl font-bold text-emerald-400">0%</span>
+              <span id="fluDir" class="text-xs text-slate-400">stabil</span>
+            </div>
+            <div class="my-2">
+              <svg class="wave-svg" viewBox="0 0 500 60" preserveAspectRatio="none">
+                <path id="fluWavePath" d="M 0,30 Q 125,15 250,30 T 500,30" fill="none" stroke="#20c997" stroke-width="2"/>
+                <path id="fluWaveFill" d="M 0,30 Q 125,15 250,30 T 500,30 L 500,60 L 0,60 Z" fill="rgba(32, 201, 151, 0.08)"/>
+              </svg>
+            </div>
+            <div class="w-full bg-slate-900 h-1.5 rounded-full relative overflow-hidden">
+              <div id="fluBar" class="bg-emerald-400 h-full w-0 transition-all duration-500"></div>
+            </div>
+            <div id="dfl" class="text-[11px] text-emerald-400 mt-3 font-medium">Volatilitas Rendah</div>
+          </div>
         </div>
 
-        <!-- Remote AC Simulasi -->
-        <div class="remote">
-            <div class="remote-screen">
-               <span>AC: <span id="tempDisplay">24°C</span></span>
-               <span id="modeIcon" style="font-size: 16px;">❄️ ON</span>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="ui-card lg:col-span-2">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-base font-semibold text-slate-200">Grafik Fluktuasi Bulanan</h2>
+              <div class="flex bg-slate-900/80 p-1 rounded-lg border border-slate-800 text-xs">
+                <button id="bL" onclick="swCh('line')" class="px-4 py-1.5 rounded-md font-medium btn-toggle-active transition cursor-pointer">Garis</button>
+                <button id="bB" onclick="swCh('bar')" class="px-4 py-1.5 rounded-md font-medium btn-toggle-inactive transition cursor-pointer">Batang</button>
+              </div>
             </div>
-            <div class="remote-buttons">
-                <button class="remote-btn" onclick="changeTemp(-1)">-</button>
-                <button class="remote-btn" onclick="changeTemp(1)">+</button>
+            <div class="h-64 relative">
+              <canvas id="cf"></canvas>
             </div>
+          </div>
+
+          <div class="ui-card">
+            <h2 class="text-base font-semibold text-slate-200 mb-4">Distribusi Kategori</h2>
+            <div class="h-48 relative flex items-center justify-center">
+              <canvas id="cc"></canvas>
+            </div>
+            <div id="clg" class="mt-4 space-y-1.5 text-xs text-slate-400 max-h-24 overflow-y-auto"></div>
+          </div>
         </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="ui-card">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-base font-semibold text-slate-200">Uang Masuk & Uang Keluar</h2>
+              <button id="btnSimToggle" onclick="toggleSim()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                <i id="iconSim" class="fa-solid fa-play text-[10px]"></i> <span id="textSimBtn">Jalankan</span>
+              </button>
+            </div>
+            <div class="space-y-3 text-xs mb-4">
+              <div>
+                <label id="labelUangMasuk" class="text-slate-400 block mb-1">Uang Masuk</label>
+                <input type="text" id="sc" class="custom-input w-full" value="10000000" oninput="runSim()">
+              </div>
+              <div>
+                <label id="labelUangKeluar" class="text-slate-400 block mb-1">Uang Keluar</label>
+                <input type="text" id="sv" class="custom-input w-full" value="3500000" oninput="runSim()">
+              </div>
+            </div>
+            <div class="h-28 relative">
+              <canvas id="cs"></canvas>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-2 border-t border-slate-800/80 text-xs">
+              <span class="text-slate-400">Estimasi Sisa Uang:</span>
+              <div class="text-right">
+                <span id="simResult" class="font-bold text-amber-400 text-sm block">Rp 6.500.000</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ui-card">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-base font-semibold text-slate-200">Progress Target / Budget</h2>
+              <button onclick="shBud()" class="bg-slate-800 hover:bg-slate-700 text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-gear text-[10px]"></i> Setting
+              </button>
+            </div>
+            <div id="bp" class="space-y-4 text-xs pr-1"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: DANA MASUK & DANA KELUAR -->
+      <div id="tabPencatatan" class="space-y-4 hidden">
+        <div class="ui-card">
+          <div class="flex justify-between items-center mb-4">
+            <div>
+              <h2 class="text-base font-semibold text-slate-200">Pencatatan Dana Masuk & Keluar</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Kelola seluruh riwayat transaksi pemasukan dan pengeluaran</p>
+            </div>
+            <div class="flex gap-2">
+              <select id="ft" onchange="renTx()" class="custom-input text-xs w-48 cursor-pointer">
+                <option value="all">Bulan Ini (Semua)</option>
+                <option value="income">Dana Masuk (Bulan Ini)</option>
+                <option value="expense">Dana Keluar (Bulan Ini)</option>
+                <option value="all_history">Semua Riwayat (Semua Bulan)</option>
+              </select>
+              <button onclick="shAdd()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs px-4 py-2 rounded-lg transition cursor-pointer flex items-center gap-1.5">
+                <i class="fa-solid fa-plus text-[10px]"></i> Tambah Transaksi
+              </button>
+            </div>
+          </div>
+
+          <div id="txl" class="min-h-[300px] max-h-[550px] overflow-y-auto space-y-2 pr-1"></div>
+
+          <div class="flex justify-between items-center mt-4 pt-3 border-t border-slate-800 text-xs">
+            <span id="txc" class="text-slate-400">0 transaksi</span>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MODAL: TAMBAH TRANSAKSI -->
+  <div id="ma" class="modal-overlay hidden">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-11/12 max-w-md">
+      <h3 class="text-lg font-bold text-slate-100 mb-4">Tambah Transaksi</h3>
+      <div class="flex gap-2 mb-3">
+        <button id="bI2" onclick="sTy('income')" class="flex-1 py-2 text-xs font-semibold rounded-lg border border-amber-500 bg-amber-500/10 text-amber-500 cursor-pointer">Dana Masuk</button>
+        <button id="bE2" onclick="sTy('expense')" class="flex-1 py-2 text-xs font-semibold rounded-lg border border-slate-800 bg-transparent text-slate-400 cursor-pointer">Dana Keluar</button>
+      </div>
+      <input type="text" id="iD2" class="custom-input w-full text-xs mb-3" placeholder="Deskripsi">
+      
+      <select id="iK" class="custom-input w-full text-xs mb-3 cursor-pointer">
+        <!-- Generasi Dinamis -->
+      </select>
+      
+      <input type="text" id="iA2" class="custom-input w-full text-xs mb-3" placeholder="Jumlah Rupiah (Bisa koma/titik, misal: 50000)">
+      <input type="date" id="iT2" class="custom-input w-full text-xs mb-4 cursor-pointer">
+      <button onclick="addTx()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer">
+        Simpan Transaksi
+      </button>
     </div>
-</div>
+  </div>
+
+  <!-- MODAL: SETTING BUDGET -->
+  <div id="mbd" class="modal-overlay hidden">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-11/12 max-w-md">
+      <h3 class="text-lg font-bold text-slate-100 mb-4">Setting Target / Budget</h3>
+      <div id="bip" class="space-y-3 mb-6"></div>
+      <button onclick="svBd()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer">
+        Simpan Pengaturan
+      </button>
+    </div>
+  </div>
 
 <script>
-    let currentTemp = 24;
-    const minTemp = 16;
-    const maxTemp = 30;
+// MATIKAN INSPECT ELEMENT
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  if (e.key === 'F12' || e.keyCode === 123) e.preventDefault();
+  if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.keyCode === 73)) e.preventDefault();
+  if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j' || e.keyCode === 74)) e.preventDefault();
+  if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c' || e.keyCode === 67)) e.preventDefault();
+  if (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.keyCode === 85)) e.preventDefault();
+  if (e.ctrlKey && (e.key === 'S' || e.key === 's' || e.keyCode === 83)) e.preventDefault();
+});
 
-    const loginSection = document.getElementById('loginSection');
-    const simulationSection = document.getElementById('simulationSection');
-    const usernameInput = document.getElementById('usernameInput');
-    const errorMsg = document.getElementById('errorMsg');
-    const greetingText = document.getElementById('greetingText');
+const AUTH_USER = "vzqaajoko";
+const AUTH_PASS = "1";
 
-    const cartoonChar = document.getElementById('cartoonChar');
-    const bodyColor = document.getElementById('bodyColor');
-    const faceExpression = document.getElementById('faceExpression');
-    const statusText = document.getElementById('statusText');
-    const tempDisplay = document.getElementById('tempDisplay');
-    const modeIcon = document.getElementById('modeIcon');
-    const roomBg = document.getElementById('roomBg');
+const C = {
+  uang_masuk: {i:'fa-wallet', c:'#38bdf8', l:'Uang Masuk', type: 'income'},
+  kirim_tukar: {i:'fa-paper-plane', c:'#f59e0b', l:'Kirim & Tukar Uang', type: 'expense'}
+};
+const BK = ['uang_masuk', 'kirim_tukar'];
+let S = { tx: [], bd: {}, cm: '', ty: 'income' };
+let chartType = 'line';
+let cF, cC, cS;
 
-    // Bisa tekan Enter langsung di keyboard
-    usernameInput.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            handleLogin();
-        }
+// Variabel untuk Simulator Bergelombang
+let simInterval = null;
+let isSimRunning = false;
+
+window.addEventListener('DOMContentLoaded', () => {
+  const isLoggedIn = localStorage.getItem('flk_is_logged_in');
+  if (isLoggedIn === 'true') {
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('mainDashboard').classList.remove('hidden');
+    initApp();
+  }
+});
+
+function switchTab(tabName) {
+  if (isSimRunning) {
+    toggleSim();
+  }
+
+  const tabFluktuasi = document.getElementById('tabFluktuasi');
+  const tabPencatatan = document.getElementById('tabPencatatan');
+  const navFluktuasi = document.getElementById('navFluktuasi');
+  const navPencatatan = document.getElementById('navPencatatan');
+  const pageTitle = document.getElementById('pageTitle');
+
+  if (tabName === 'fluktuasi') {
+    tabFluktuasi.classList.remove('hidden');
+    tabPencatatan.classList.add('hidden');
+    navFluktuasi.className = "w-full text-left px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-3 transition cursor-pointer nav-btn-active";
+    navPencatatan.className = "w-full text-left px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-3 transition cursor-pointer nav-btn-inactive";
+    pageTitle.textContent = "Fluktuasi Keuangan";
+  } else {
+    tabPencatatan.classList.remove('hidden');
+    tabFluktuasi.classList.add('hidden');
+    navPencatatan.className = "w-full text-left px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-3 transition cursor-pointer nav-btn-active";
+    navFluktuasi.className = "w-full text-left px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-3 transition cursor-pointer nav-btn-inactive";
+    pageTitle.textContent = "Dana Masuk & Keluar Setiap Bulan";
+  }
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  const u = document.getElementById('inputUser').value.trim();
+  const p = document.getElementById('inputPass').value.trim();
+  
+  if (u === AUTH_USER && p === AUTH_PASS) {
+    localStorage.setItem('flk_is_logged_in', 'true');
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('mainDashboard').classList.remove('hidden');
+    document.getElementById('loginErr').classList.add('hidden');
+    document.getElementById('inputUser').value = '';
+    document.getElementById('inputPass').value = '';
+    initApp();
+  } else {
+    document.getElementById('loginErr').classList.remove('hidden');
+  }
+}
+
+function lockApp() {
+  if (isSimRunning) toggleSim();
+  localStorage.removeItem('flk_is_logged_in');
+  document.getElementById('mainDashboard').classList.add('hidden');
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  toast('Berhasil keluar');
+}
+
+function toast(msg) {
+  const box = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast border-amber-500/30 text-amber-400';
+  el.innerHTML = `<i class="fa-solid fa-circle-info mr-2"></i> ${msg}`;
+  box.appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
+function initApp() {
+  ldL();
+  initMonths();
+  initCharts();
+  ref();
+  switchTab('fluktuasi'); 
+}
+
+function ldL() {
+  try {
+    const r = localStorage.getItem('flk_data_v9');
+    if(r) {
+      const d = JSON.parse(r);
+      S.tx = d.t || [];
+      S.bd = d.b || {};
+    } else { 
+      demoData(); 
+    }
+    BK.forEach(c => { if(!S.bd[c]) S.bd[c] = 5000000; });
+  } catch(e) { demoData(); }
+}
+
+function svL() {
+  localStorage.setItem('flk_data_v9', JSON.stringify({ t: S.tx, b: S.bd }));
+}
+
+function demoData() {
+  const n = new Date();
+  const y = n.getFullYear();
+  const m = String(n.getMonth() + 1).padStart(2, '0');
+  const ky = `${y}-${m}`;
+
+  S.tx = [
+    { id: 1, tp: 'income', ds: 'Uang masuk', ct: 'uang_masuk', am: 11500000, dt: `${ky}-27` },
+    { id: 2, tp: 'expense', ds: 'Uang keluar', ct: 'kirim_tukar', am: 4000000, dt: `${ky}-27` }
+  ];
+  S.bd = { uang_masuk: 11500000, kirim_tukar: 4000000 };
+  svL();
+}
+
+function initMonths() {
+  const sel = document.getElementById('ms');
+  const startYear = new Date().getFullYear();
+  const endYear = 2028;
+  const monthNames = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+  
+  sel.innerHTML = '';
+  for (let y = startYear; y <= endYear; y++) {
+    monthNames.forEach((name, index) => {
+      let mNum = String(index + 1).padStart(2, '0');
+      let val = `${y}-${mNum}`;
+      let label = `${name} ${y}`;
+      sel.innerHTML += `<option value="${val}">${label}</option>`;
     });
+  }
+  
+  const currentMonthNum = String(new Date().getMonth() + 1).padStart(2, '0');
+  const defaultVal = `${startYear}-${currentMonthNum}`;
+  sel.value = defaultVal;
+  S.cm = sel.value;
+}
 
-    function handleLogin() {
-        const name = usernameInput.value.trim();
-        if (name === "") {
-            errorMsg.innerText = "Nama tidak boleh kosong!";
-            usernameInput.focus();
-            return;
-        }
+function changeMonth() {
+  S.cm = document.getElementById('ms').value;
+  ref();
+}
 
-        errorMsg.innerText = "";
-        loginSection.style.display = 'none';
-        simulationSection.style.display = 'block';
-        greetingText.innerText = `Halo, ${name}! Silakan atur suhu di remote AC bawah.`;
+function parseNumberInput(val) {
+  if (typeof val === 'number') return val;
+  if (!val) return 0;
+  let cleanVal = val.toString().trim();
+  cleanVal = cleanVal.replace(/[^0-9.-]+/g, "");
+  let num = parseFloat(cleanVal);
+  return isNaN(num) ? 0 : num;
+}
+
+function fRp(n) {
+  let isNegative = n < 0;
+  let absVal = Math.round(Math.abs(n));
+  let integerPart = absVal.toLocaleString('id-ID');
+  let formatted = `${integerPart}`;
+  return isNegative ? `-Rp ${formatted}` : `Rp ${formatted}`;
+}
+
+function gMT() { 
+  return S.tx.filter(t => t.dt.startsWith(S.cm)); 
+}
+
+function gMS(mk) {
+  let tsCurrent = S.tx.filter(t => t.dt.startsWith(mk));
+  let iCurrent = 0, eCurrent = 0;
+  tsCurrent.forEach(t => { 
+    if(t.tp === 'income') iCurrent += t.am; 
+    else eCurrent += t.am; 
+  });
+
+  let tsAllUpToMonth = S.tx.filter(t => t.dt.substring(0, 7) <= mk);
+  let totalIncomeAll = 0, totalExpenseAll = 0;
+  tsAllUpToMonth.forEach(t => {
+    if(t.tp === 'income') totalIncomeAll += t.am;
+    else totalExpenseAll += t.am;
+  });
+
+  return { 
+    i: iCurrent, 
+    e: eCurrent, 
+    b: totalIncomeAll - totalExpenseAll 
+  };
+}
+
+function ref() {
+  renS();
+  renTx();
+  renBd();
+  uF();
+  uC();
+}
+
+function renS() {
+  let c = gMS(S.cm);
+  
+  // Pemasukan
+  document.getElementById('di').textContent = fRp(c.i);
+
+  // Pengeluaran
+  document.getElementById('de').textContent = fRp(c.e);
+  
+  const elSaldo = document.getElementById('db');
+  const elStatus = document.getElementById('dbs');
+  const cardSaldo = document.getElementById('cardSaldo');
+  
+  elSaldo.textContent = fRp(c.b);
+
+  if (c.b < 0) {
+    elSaldo.className = "text-2xl font-bold mt-1 text-rose-500";
+    elStatus.textContent = "Defisit";
+    elStatus.className = "bg-rose-950/60 text-rose-500 text-[10px] font-semibold px-2 py-0.5 rounded border border-rose-800/50";
+    cardSaldo.className = "ui-card border-b-red";
+  } else {
+    elSaldo.className = "text-2xl font-bold mt-1 text-white";
+    elStatus.textContent = "Stabil";
+    elStatus.className = "bg-amber-950/60 text-amber-500 text-[10px] font-semibold px-2 py-0.5 rounded border border-amber-800/50";
+    cardSaldo.className = "ui-card border-b-gold";
+  }
+
+  let flPct = c.i > 0 ? Math.min(Math.round((c.e / c.i) * 100), 100) : (c.e > 0 ? 100 : 0);
+  
+  const fluPctEl = document.getElementById('fluPct');
+  const fluDirEl = document.getElementById('fluDir');
+  const fluBarEl = document.getElementById('fluBar');
+  const dflEl = document.getElementById('dfl');
+  const fluArrowEl = document.getElementById('fluArrow');
+  const wavePath = document.getElementById('fluWavePath');
+  const waveFill = document.getElementById('fluWaveFill');
+
+  fluPctEl.textContent = flPct + '%';
+  fluBarEl.style.width = flPct + '%';
+
+  if (flPct >= 80) {
+    fluPctEl.className = "text-2xl font-bold text-rose-500";
+    fluDirEl.textContent = "tidak stabil";
+    fluDirEl.className = "text-xs text-rose-400 font-semibold";
+    fluBarEl.className = "bg-rose-500 h-full transition-all duration-500";
+    dflEl.textContent = "Volatilitas Tinggi / Risk";
+    dflEl.className = "text-[11px] text-rose-500 mt-3 font-medium";
+    fluArrowEl.className = "fa-solid fa-arrow-trend-up text-rose-500 text-sm";
+    wavePath.setAttribute("stroke", "#f43f5e");
+    waveFill.setAttribute("fill", "rgba(244, 63, 94, 0.15)");
+  } else if (flPct >= 50) {
+    fluPctEl.className = "text-2xl font-bold text-amber-400";
+    fluDirEl.textContent = "moderat";
+    fluDirEl.className = "text-xs text-amber-400";
+    fluBarEl.className = "bg-amber-400 h-full transition-all duration-500";
+    dflEl.textContent = "Volatilitas Sedang";
+    dflEl.className = "text-[11px] text-amber-400 mt-3 font-medium";
+    fluArrowEl.className = "fa-solid fa-arrows-split-up-and-left text-amber-400 text-sm";
+    wavePath.setAttribute("stroke", "#f59e0b");
+    waveFill.setAttribute("fill", "rgba(245, 158, 11, 0.1)");
+  } else {
+    fluPctEl.className = "text-2xl font-bold text-emerald-400";
+    fluDirEl.textContent = "stabil";
+    fluDirEl.className = "text-xs text-slate-400";
+    fluBarEl.className = "bg-emerald-400 h-full transition-all duration-500";
+    dflEl.textContent = "Volatilitas Rendah";
+    dflEl.className = "text-[11px] text-emerald-400 mt-3 font-medium";
+    fluArrowEl.className = "fa-solid fa-arrows-split-up-and-left text-emerald-400 text-sm";
+    wavePath.setAttribute("stroke", "#20c997");
+    waveFill.setAttribute("fill", "rgba(32, 201, 151, 0.08)");
+  }
+}
+
+function swCh(type) {
+  chartType = type;
+  document.getElementById('bL').className = type === 'line' ? 'px-4 py-1.5 rounded-md font-medium btn-toggle-active transition cursor-pointer' : 'px-4 py-1.5 rounded-md font-medium btn-toggle-inactive transition cursor-pointer';
+  document.getElementById('bB').className = type === 'bar' ? 'px-4 py-1.5 rounded-md font-medium btn-toggle-active transition cursor-pointer' : 'px-4 py-1.5 rounded-md font-medium btn-toggle-inactive transition cursor-pointer';
+  
+  cF.destroy();
+  initMainChart();
+  uF();
+}
+
+function initCharts() {
+  initMainChart();
+  
+  const ctxC = document.getElementById('cc').getContext('2d');
+  cC = new Chart(ctxC, {
+    type: 'doughnut',
+    data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+  });
+
+  const ctxS = document.getElementById('cs').getContext('2d');
+  cS = new Chart(ctxS, {
+    type: 'line',
+    data: { labels: [], datasets: [{ data: [], borderColor: '#eab308', backgroundColor: 'rgba(234, 179, 8, 0.1)', fill: true, tension: 0.4 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+  });
+  runSim();
+}
+
+function initMainChart() {
+  const ctxF = document.getElementById('cf').getContext('2d');
+  cF = new Chart(ctxF, {
+    type: chartType,
+    data: { labels: [], datasets: [] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#64748b' } } },
+      scales: {
+        x: { grid: { color: '#1e2436' }, ticks: { color: '#64748b' } },
+        y: { grid: { color: '#1e2436' }, ticks: { color: '#64748b', callback: v => (v < 0 ? '-' : '') + 'Rp ' + (Math.abs(v)/1000).toFixed(0) + 'k' } }
+      }
     }
+  });
+}
 
-    function changeTemp(amount) {
-        currentTemp += amount;
-        if (currentTemp < minTemp) currentTemp = minTemp;
-        if (currentTemp > maxTemp) currentTemp = maxTemp;
-        
-        updateSimulation();
+function uF() {
+  let activeYear = S.cm ? S.cm.substring(0, 4) : new Date().getFullYear();
+  let monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  let id = [], ed = [];
+
+  for(let i=1; i<=12; i++) {
+    let k = `${activeYear}-${String(i).padStart(2,'0')}`;
+    let s = gMS(k);
+    id.push(s.i); ed.push(s.e);
+  }
+
+  cF.data.labels = monthLabels;
+  cF.data.datasets = [
+    { label: 'Pemasukan', data: id, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.1)', fill: true, tension: 0.4 },
+    { label: 'Pengeluaran', data: ed, borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.1)', fill: true, tension: 0.4 }
+  ];
+  cF.update();
+}
+
+function uC() {
+  let mt = gMT(), cd = {};
+  mt.forEach(t => cd[t.ct] = (cd[t.ct] || 0) + t.am);
+  
+  let cs = Object.keys(cd), ls = cs.map(c => C[c]?C[c].l:c), ds = cs.map(c => cd[c]), cls = cs.map(c => C[c]?C[c].c:'#94a3b8');
+  cC.data.labels = ls;
+  cC.data.datasets = [{ data: ds, backgroundColor: cls }];
+  cC.update();
+
+  let lg = document.getElementById('clg');
+  lg.innerHTML = '';
+  cs.forEach((c, i) => {
+    lg.innerHTML += `
+      <div class="flex justify-between items-center">
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-circle text-[8px]" style="color:${cls[i]}"></i>${ls[i]}</span>
+        <div class="text-right">
+          <span class="font-medium text-slate-200 block">${fRp(ds[i])}</span>
+        </div>
+      </div>`;
+  });
+}
+
+function renTx() {
+  let f = document.getElementById('ft').value;
+  let tx = (f === 'all_history') ? [...S.tx] : gMT();
+
+  if (f === 'income') {
+    tx = gMT().filter(t => t.tp === 'income');
+  } else if (f === 'expense') {
+    tx = gMT().filter(t => t.tp === 'expense');
+  }
+
+  tx.sort((a, b) => new Date(b.dt) - new Date(a.dt));
+
+  let container = document.getElementById('txl');
+  if(tx.length === 0) {
+    container.innerHTML = `<div class="text-center py-12 text-slate-500 text-xs">Belum ada transaksi di periode ini</div>`;
+  } else {
+    let h = '';
+    tx.forEach(t => {
+      let item = C[t.ct] || C.uang_masuk;
+      let isInc = t.tp === 'income';
+      h += `
+        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-xs ${isInc?'bg-sky-950 text-sky-400 border border-sky-800/50':'bg-amber-950 text-amber-400 border border-amber-800/50'}">
+              <i class="fa-solid ${isInc?'fa-arrow-down':'fa-arrow-up'}"></i>
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-slate-200">${t.ds}</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">${t.dt} • <span class="${isInc?'text-sky-400':'text-amber-500'}">${item.l}</span></div>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="text-right">
+              <span class="text-xs font-bold block ${isInc?'text-sky-400':'text-amber-400'}">${isInc?'+':'-'}${fRp(t.am)}</span>
+            </div>
+            <button onclick="delTx(${t.id})" class="text-slate-600 hover:text-rose-400 text-xs cursor-pointer p-1"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = h;
+  }
+  document.getElementById('txc').textContent = tx.length + ' transaksi tercatat';
+}
+
+function renBd() {
+  let mt = gMT(), totals = {};
+  mt.forEach(t => totals[t.ct] = (totals[t.ct] || 0) + t.am);
+  
+  let bp = document.getElementById('bp');
+  bp.innerHTML = '';
+  BK.forEach(cat => {
+    let item = C[cat];
+    let budget = S.bd[cat] || 0;
+    let currentAmount = totals[cat] || 0;
+    let pct = budget > 0 ? Math.min(Math.round((currentAmount / budget) * 100), 100) : 0;
+    
+    let isIncomeCategory = cat === 'uang_masuk';
+    let barColor = isIncomeCategory ? 'bg-sky-400' : 'bg-amber-500';
+    let iconColor = isIncomeCategory ? 'text-sky-400' : 'text-amber-500';
+
+    bp.innerHTML += `
+      <div>
+        <div class="flex justify-between mb-1">
+          <span class="text-slate-300 font-medium flex items-center">
+            <i class="fa-solid ${item.i} mr-2 ${iconColor}"></i>${item.l}
+          </span>
+          <div class="text-right">
+            <span class="text-slate-400 block">${fRp(currentAmount)} / ${fRp(budget)}</span>
+          </div>
+        </div>
+        <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+          <div class="${barColor} h-full transition-all duration-300" style="width:${pct}%"></div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function sTy(t) {
+  S.ty = t;
+  renderSelectKategori();
+  
+  if (t === 'income') {
+    document.getElementById('bI2').className = 'flex-1 py-2 text-xs font-semibold rounded-lg border border-amber-500 bg-amber-500/10 text-amber-500 cursor-pointer';
+    document.getElementById('bE2').className = 'flex-1 py-2 text-xs font-semibold rounded-lg border border-slate-800 bg-transparent text-slate-400 cursor-pointer';
+  } else {
+    document.getElementById('bI2').className = 'flex-1 py-2 text-xs font-semibold rounded-lg border border-slate-800 bg-transparent text-slate-400 cursor-pointer';
+    document.getElementById('bE2').className = 'flex-1 py-2 text-xs font-semibold rounded-lg border border-rose-500 bg-rose-500/10 text-rose-500 cursor-pointer';
+  }
+}
+
+function renderSelectKategori() {
+  const selectKategori = document.getElementById('iK');
+  selectKategori.innerHTML = '';
+  Object.keys(C).forEach(key => {
+    if (C[key].type === S.ty) {
+      selectKategori.innerHTML += `<option value="${key}">${C[key].l}</option>`;
     }
+  });
+}
 
-    function updateSimulation() {
-        tempDisplay.innerText = currentTemp + '°C';
-        cartoonChar.classList.remove('shivering');
+function shAdd() {
+  sTy('income');
+  document.getElementById('iT2').value = new Date().toISOString().split('T')[0];
+  document.getElementById('ma').classList.remove('hidden');
+}
 
-        if (currentTemp >= 27) {
-            bodyColor.setAttribute("fill", "#ff7675");
-            roomBg.style.background = '#ffebee';
-            modeIcon.innerText = "🔥 HOT";
-            statusText.innerText = "Uh, gerah banget! Karakter mulai berkeringat.";
-            faceExpression.innerHTML = `
-                <circle cx="42" cy="38" r="3" fill="#2d3436"/>
-                <circle cx="58" cy="38" r="3" fill="#2d3436"/>
-                <path d="M 43 52 Q 50 44 57 52" stroke="#2d3436" stroke-width="2" fill="none" stroke-linecap="round"/>
-            `;
-        } else if (currentTemp >= 22 && currentTemp <= 26) {
-            bodyColor.setAttribute("fill", "#74b9ff");
-            roomBg.style.background = '#eef2f3';
-            modeIcon.innerText = "❄️ COOL";
-            statusText.innerText = "Suhu sejuk dan pas. Karakter merasa santai.";
-            faceExpression.innerHTML = `
-                <circle cx="42" cy="38" r="2.5" fill="#2d3436"/>
-                <circle cx="58" cy="38" r="2.5" fill="#2d3436"/>
-                <path d="M 44 48 Q 50 54 56 48" stroke="#2d3436" stroke-width="2" fill="none" stroke-linecap="round"/>
-            `;
-        } else if (currentTemp >= 19 && currentTemp <= 21) {
-            bodyColor.setAttribute("fill", "#0984e3");
-            roomBg.style.background = '#e3f2fd';
-            modeIcon.innerText = "❄️ CHILL";
-            statusText.innerText = "Mulai dingin, karakter merapatkan bajunya.";
-            faceExpression.innerHTML = `
-                <circle cx="42" cy="38" r="2.5" fill="#2d3436"/>
-                <circle cx="58" cy="38" r="2.5" fill="#2d3436"/>
-                <circle cx="50" cy="50" r="3" fill="#2d3436"/>
-            `;
-        } else {
-            bodyColor.setAttribute("fill", "#0984e3");
-            roomBg.style.background = '#bbdefb';
-            modeIcon.innerText = "🥶 FREEZE";
-            cartoonChar.classList.add('shivering');
-            statusText.innerText = "Brrr... Sangat dingin! Karakter menggigil kedinginan!";
-            faceExpression.innerHTML = `
-                <line x1="40" y1="37" x2="44" y2="39" stroke="#2d3436" stroke-width="2"/>
-                <line x1="56" y1="37" x2="60" y2="39" stroke="#2d3436" stroke-width="2"/>
-                <line x1="43" y1="50" x2="57" y2="50" stroke="#2d3436" stroke-width="2"/>
-            `;
-        }
-    }
+function addTx() {
+  let d = document.getElementById('iD2').value.trim(),
+      k = document.getElementById('iK').value,
+      rawA = document.getElementById('iA2').value,
+      a = parseNumberInput(rawA),
+      t = document.getElementById('iT2').value;
+
+  if(!d || isNaN(a) || a <= 0 || !t) { toast('Harap isi semua kolom dengan benar'); return; }
+  
+  S.tx.push({ id: Date.now(), tp: S.ty, ds: d, ct: k, am: a, dt: t });
+  svL();
+  document.getElementById('ma').classList.add('hidden');
+  document.getElementById('iD2').value = '';
+  document.getElementById('iA2').value = '';
+  toast('Transaksi disimpan');
+  ref();
+}
+
+function delTx(id) {
+  S.tx = S.tx.filter(t => t.id !== id);
+  svL();
+  toast('Transaksi dihapus');
+  ref();
+}
+
+function shBud() {
+  let bip = document.getElementById('bip');
+  bip.innerHTML = '';
+  BK.forEach(cat => {
+    let item = C[cat];
+    let isIncomeCategory = cat === 'uang_masuk';
+    let iconColor = isIncomeCategory ? 'text-sky-400' : 'text-amber-500';
+
+    bip.innerHTML += `
+      <div class="flex items-center justify-between">
+        <label class="text-slate-300 text-xs flex items-center gap-2">
+          <i class="fa-solid ${item.i} ${iconColor}"></i> ${item.l}
+        </label>
+        <input type="text" class="custom-input text-xs w-36 text-right bpi" data-cat="${cat}" value="${S.bd[cat] || 0}">
+      </div>
+    `;
+  });
+  document.getElementById('mbd').classList.remove('hidden');
+}
+
+function svBd() {
+  document.querySelectorAll('.bpi').forEach(i => {
+    S.bd[i.dataset.cat] = parseNumberInput(i.value);
+  });
+
+  svL();
+  document.getElementById('mbd').classList.add('hidden');
+  toast('Pengaturan disimpan');
+  ref();
+}
+
+function runSim() {
+  let masukIDR = parseNumberInput(document.getElementById('sc').value);
+  let keluarIDR = parseNumberInput(document.getElementById('sv').value);
+  let sisaIDR = masukIDR - keluarIDR;
+  
+  const elSimResult = document.getElementById('simResult');
+  
+  elSimResult.textContent = fRp(sisaIDR);
+  elSimResult.className = sisaIDR < 0 ? "font-bold text-rose-500 text-sm block" : "font-bold text-amber-400 text-sm block";
+
+  let chartData = [masukIDR, masukIDR - (keluarIDR * 0.25), masukIDR - (keluarIDR * 0.5), masukIDR - (keluarIDR * 0.75), sisaIDR];
+  
+  if (cS) {
+    cS.data.labels = ['Mulai', '25%', '50%', '75%', 'Sisa'];
+    cS.data.datasets[0].data = chartData;
+    cS.data.datasets[0].borderColor = sisaIDR >= 0 ? '#eab308' : '#f43f5e';
+    cS.update();
+  }
+}
+
+// FITUR TOMBOL JALANKAN/STOP SIMULATOR BERGELOMBANG SETIAP DETIK
+function toggleSim() {
+  const btnToggle = document.getElementById('btnSimToggle');
+  const iconSim = document.getElementById('iconSim');
+  const textSimBtn = document.getElementById('textSimBtn');
+  const inputKeluar = document.getElementById('sv');
+
+  if (!isSimRunning) {
+    isSimRunning = true;
+    btnToggle.className = "bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 cursor-pointer";
+    iconSim.className = "fa-solid fa-stop text-[10px]";
+    textSimBtn.textContent = "Stop";
+    toast('Simulator bergelombang dijalankan');
+
+    let baseKeluar = parseNumberInput(inputKeluar.value);
+    if (baseKeluar <= 0) baseKeluar = 3500000;
+
+    simInterval = setInterval(() => {
+      let randomFactor = 0.8 + (Math.random() * 0.4); 
+      let simulatedKeluar = Math.round(baseKeluar * randomFactor);
+      
+      inputKeluar.value = simulatedKeluar;
+      runSim();
+    }, 1000);
+
+  } else {
+    isSimRunning = false;
+    clearInterval(simInterval);
+    btnToggle.className = "bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 cursor-pointer";
+    iconSim.className = "fa-solid fa-play text-[10px]";
+    textSimBtn.textContent = "Jalankan";
+    toast('Simulator dihentikan');
+  }
+}
+
+document.addEventListener('click', e => {
+  if(e.target.id === 'ma') document.getElementById('ma').classList.add('hidden');
+  if(e.target.id === 'mbd') document.getElementById('mbd').classList.add('hidden');
+});
 </script>
-
 </body>
 </html>
